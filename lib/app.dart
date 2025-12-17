@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'features/splash/presentation/pages/splash_page.dart';
-import 'features/onboarding/presentation/pages/onboarding_page.dart';
-import 'features/auth/presentation/pages/login/login_index_page.dart';
-import 'features/auth/presentation/pages/register/register_index_page.dart';
-import 'features/pin/presentation/pin_index_page.dart';
-import 'features/questionnaire/presentation/questionnaire_index_page.dart';
+import 'features/boardingfeature/splash/presentation/pages/splash_page.dart';
+import 'features/boardingfeature/onboarding/presentation/pages/onboarding_page.dart';
+import 'features/boardingfeature/auth/presentation/pages/login/login_index_page.dart';
+import 'features/boardingfeature/auth/presentation/pages/register/register_index_page.dart';
+import 'features/boardingfeature/pin/presentation/pin_index_page.dart';
+import 'features/boardingfeature/questionnaire/presentation/questionnaire_index_page.dart';
 
 /// Main app widget with Navigator routes
 class DahuKuApp extends StatelessWidget {
