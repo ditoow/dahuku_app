@@ -6,6 +6,7 @@ import 'features/boardingfeature/auth/presentation/pages/login/login_index_page.
 import 'features/boardingfeature/auth/presentation/pages/register/register_index_page.dart';
 import 'features/boardingfeature/pin/presentation/pin_index_page.dart';
 import 'features/boardingfeature/questionnaire/presentation/questionnaire_index_page.dart';
+import 'features/dashboard/presentation/dashboard_index_page.dart';
 
 /// Main app widget with Navigator routes
 class DahuKuApp extends StatelessWidget {
@@ -17,6 +18,7 @@ class DahuKuApp extends StatelessWidget {
       title: 'DahuKu',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      // home: const DashboardIndexPage(),
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashPage(),
@@ -25,6 +27,7 @@ class DahuKuApp extends StatelessWidget {
         '/register': (context) => const RegisterIndexPage(),
         '/pin': (context) => const PinIndexPage(),
         '/questionnaire': (context) => const QuestionnaireIndexPage(),
+        '/dashboard': (context) => const DashboardIndexPage(),
       },
     );
   }

@@ -121,8 +121,8 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
       child: BlocConsumer<QuestionnaireBloc, QuestionnaireState>(
         listener: (context, state) {
           if (state.status == QuestionnaireStatus.completed) {
-            // Navigate to home/dashboard
-            Navigator.pushReplacementNamed(context, '/');
+            // Navigate to dashboard
+            Navigator.pushReplacementNamed(context, '/dashboard');
           }
         },
         builder: (context, state) {
