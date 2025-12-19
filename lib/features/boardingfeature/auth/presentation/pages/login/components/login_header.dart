@@ -20,16 +20,9 @@ class LoginHeader extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF8B9AFF), Color(0xFF6B7AFF)],
+                  colors: [Color(0xFF6B7AFF), AppColors.primary],
                 ),
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: const Icon(Icons.person, size: 48, color: Colors.white),
             ),

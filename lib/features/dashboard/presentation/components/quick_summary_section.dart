@@ -1,88 +1,243 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
-/// Quick summary section with expense and remaining budget cards
+/// Ringkasan Cepat section matching HTML mockup
 class QuickSummarySection extends StatelessWidget {
   final double weeklyExpense;
-  final double remainingBudgetPercent;
-  final VoidCallback? onViewAll;
+  final double remainingBudget;
+  final double budgetProgress; // 0.0 to 1.0
+  final VoidCallback? onLearnTap;
+  final VoidCallback? onHistoryTap;
 
   const QuickSummarySection({
     super.key,
     required this.weeklyExpense,
-    required this.remainingBudgetPercent,
-    this.onViewAll,
+    required this.remainingBudget,
+    this.budgetProgress = 0.65,
+    this.onLearnTap,
+    this.onHistoryTap,
   });
 
-  String _formatCompactCurrency(double amount) {
+  String _formatCurrency(double amount) {
     if (amount >= 1000000) {
       return 'Rp ${(amount / 1000000).toStringAsFixed(1)}jt';
-    } else if (amount >= 1000) {
-      return 'Rp ${(amount / 1000).toStringAsFixed(0)}rb';
     }
-    return 'Rp ${amount.toStringAsFixed(0)}';
+    final formatted = amount
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
+    return 'Rp $formatted';
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
+          const Text(
+            'Ringkasan Cepat',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMain,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Two cards grid
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Ringkasan Cepat',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textMain,
+              // Pengeluaran card (white)
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Icon(
+                              Icons.arrow_downward,
+                              size: 16,
+                              color: Colors.red.shade500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'PENGELUARAN',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade400,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _formatCurrency(weeklyExpense),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textMain,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Minggu ini',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              GestureDetector(
-                onTap: onViewAll,
-                child: const Text(
-                  'Lihat Semua',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
+              const SizedBox(width: 16),
+
+              // Sisa Belanja card (purple gradient)
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [AppColors.accentPurple, Color(0xFF8B5CF6)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.accentPurple.withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      // Background icon
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Opacity(
+                          opacity: 0.1,
+                          child: Icon(
+                            Icons.pie_chart,
+                            size: 36,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'SISA BELANJA',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white.withOpacity(0.8),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _formatCurrency(remainingBudget),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Progress bar
+                          Container(
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: FractionallySizedBox(
+                              alignment: Alignment.centerLeft,
+                              widthFactor: budgetProgress,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
-          // Summary cards row
+          // Quick action buttons
           Row(
             children: [
-              // Expense card
               Expanded(
-                child: _SummaryCard(
-                  icon: Icons.arrow_upward_rounded,
-                  iconColor: AppColors.accentPurple,
-                  iconBgColor: AppColors.accentPurple.withOpacity(0.15),
-                  label: 'Pengeluaran',
-                  value: _formatCompactCurrency(weeklyExpense),
-                  subtitle: 'Minggu ini',
+                child: _QuickActionButton(
+                  icon: Icons.school_outlined,
+                  label: 'Belajar',
+                  isPrimary: true,
+                  onTap: onLearnTap,
                 ),
               ),
-              const SizedBox(width: 12),
-
-              // Remaining budget card
+              const SizedBox(width: 16),
               Expanded(
-                child: _SummaryCard(
-                  icon: Icons.account_balance_wallet_outlined,
-                  iconColor: AppColors.success,
-                  iconBgColor: AppColors.success.withOpacity(0.15),
-                  label: 'Sisa Belanja',
-                  value: '${remainingBudgetPercent.toStringAsFixed(0)}%',
-                  subtitle: null,
-                  showProgress: true,
-                  progressValue: remainingBudgetPercent / 100,
+                child: _QuickActionButton(
+                  icon: Icons.history,
+                  label: 'Riwayat',
+                  isPrimary: false,
+                  onTap: onHistoryTap,
                 ),
               ),
             ],
@@ -93,109 +248,52 @@ class QuickSummarySection extends StatelessWidget {
   }
 }
 
-/// Individual summary card widget
-class _SummaryCard extends StatelessWidget {
+/// Quick action button widget
+class _QuickActionButton extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
-  final Color iconBgColor;
   final String label;
-  final String value;
-  final String? subtitle;
-  final bool showProgress;
-  final double? progressValue;
+  final bool isPrimary;
+  final VoidCallback? onTap;
 
-  const _SummaryCard({
+  const _QuickActionButton({
     required this.icon,
-    required this.iconColor,
-    required this.iconBgColor,
     required this.label,
-    required this.value,
-    this.subtitle,
-    this.showProgress = false,
-    this.progressValue,
+    this.isPrimary = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isPrimary ? Colors.blue.shade50 : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isPrimary ? Colors.blue.shade100 : Colors.grey.shade200,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Icon & Label row
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 18),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSub,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Value
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMain,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isPrimary ? AppColors.primary : Colors.grey.shade600,
             ),
-          ),
-
-          // Subtitle or Progress
-          if (subtitle != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(width: 8),
             Text(
-              subtitle!,
+              label,
               style: TextStyle(
-                fontSize: 11,
-                color: AppColors.textLight,
-                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isPrimary ? AppColors.primary : Colors.grey.shade600,
               ),
             ),
           ],
-
-          if (showProgress && progressValue != null) ...[
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: progressValue!,
-                backgroundColor: Colors.grey.shade200,
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-                minHeight: 6,
-              ),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

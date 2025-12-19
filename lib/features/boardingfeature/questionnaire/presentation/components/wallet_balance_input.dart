@@ -61,6 +61,7 @@ class WalletBalanceInput extends StatelessWidget {
                   style: AppTextStyles.labelSmall.copyWith(
                     color: AppColors.textSub,
                     fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -69,6 +70,7 @@ class WalletBalanceInput extends StatelessWidget {
                     Text(
                       'Rp ',
                       style: AppTextStyles.bodyMedium.copyWith(
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textMain,
                       ),
@@ -91,7 +93,10 @@ class WalletBalanceInput extends StatelessWidget {
                           ),
                           border: InputBorder.none,
                           isDense: true,
-                          contentPadding: EdgeInsets.zero,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 12,
+                          ),
                         ),
                       ),
                     ),

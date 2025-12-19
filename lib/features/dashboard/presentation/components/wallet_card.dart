@@ -19,80 +19,86 @@ class WalletData {
   });
 }
 
-/// Horizontal scrollable wallet cards
+/// Dompetku section with horizontal scrollable wallet cards
 class WalletCardsSection extends StatelessWidget {
   final List<WalletData> wallets;
   final ValueChanged<WalletData>? onWalletTap;
+  final VoidCallback? onViewAll;
 
   const WalletCardsSection({
     super.key,
     required this.wallets,
     this.onWalletTap,
+    this.onViewAll,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 160,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: wallets.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.only(
-              right: index < wallets.length - 1 ? 12 : 0,
-            ),
-            child: _WalletCard(
-              wallet: wallets[index],
-              onTap: () => onWalletTap?.call(wallets[index]),
-            ),
-          );
-        },
-      ),
+    return Column(
+      children: [
+        // Section header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Dompetku',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMain,
+                ),
+              ),
+              GestureDetector(
+                onTap: onViewAll,
+                child: Text(
+                  'SEMUA',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Cards horizontal scroll
+        SizedBox(
+          height: 180, // Increased for shadow space
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none, // Prevent shadow clipping
+            padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+            itemCount: wallets.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: index < wallets.length - 1 ? 16 : 0,
+                ),
+                child: _WalletCard(
+                  wallet: wallets[index],
+                  onTap: () => onWalletTap?.call(wallets[index]),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Individual wallet card
+/// Individual wallet card matching HTML design
 class _WalletCard extends StatelessWidget {
   final WalletData wallet;
   final VoidCallback? onTap;
 
   const _WalletCard({required this.wallet, this.onTap});
-
-  Color _getGradientStart() {
-    switch (wallet.type) {
-      case WalletType.belanja:
-        return AppColors.primary;
-      case WalletType.tabungan:
-        return const Color(0xFF10B981);
-      case WalletType.darurat:
-        return const Color(0xFF8B5CF6);
-    }
-  }
-
-  Color _getGradientEnd() {
-    switch (wallet.type) {
-      case WalletType.belanja:
-        return const Color(0xFF5C71FF);
-      case WalletType.tabungan:
-        return const Color(0xFF34D399);
-      case WalletType.darurat:
-        return const Color(0xFFA78BFA);
-    }
-  }
-
-  IconData _getIcon() {
-    switch (wallet.type) {
-      case WalletType.belanja:
-        return Icons.shopping_bag_outlined;
-      case WalletType.tabungan:
-        return Icons.savings_outlined;
-      case WalletType.darurat:
-        return Icons.shield_outlined;
-    }
-  }
 
   String _formatCurrency(double amount) {
     final formatted = amount
@@ -104,115 +110,156 @@ class _WalletCard extends StatelessWidget {
     return 'Rp $formatted';
   }
 
+  IconData _getIcon() {
+    switch (wallet.type) {
+      case WalletType.belanja:
+        return Icons.shopping_bag_outlined;
+      case WalletType.tabungan:
+        return Icons.savings_outlined;
+      case WalletType.darurat:
+        return Icons.medical_services_outlined;
+    }
+  }
+
+  Color _getAccentColor() {
+    switch (wallet.type) {
+      case WalletType.belanja:
+        return AppColors.primary;
+      case WalletType.tabungan:
+        return AppColors.accentPurple;
+      case WalletType.darurat:
+        return Colors.red.shade400;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isPrimary = wallet.isPrimary;
+    final accentColor = _getAccentColor();
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 275,
-        padding: const EdgeInsets.all(16),
+        width: 200,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [_getGradientStart(), _getGradientEnd()],
-          ),
-          borderRadius: BorderRadius.circular(20),
+          gradient: isPrimary
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.blue.shade400, AppColors.primary],
+                )
+              : null,
+          color: isPrimary ? null : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: isPrimary
+              ? null
+              : Border.all(color: accentColor.withOpacity(0.2), width: 1),
           boxShadow: [
             BoxShadow(
-              color: _getGradientStart().withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              color: isPrimary
+                  ? AppColors.primary.withOpacity(0.3)
+                  : Colors.black.withOpacity(0.05),
+              blurRadius: isPrimary ? 20 : 10,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top row: Icon container, badge, menu
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Icon container
-                Container(
-                  width: 40,
-                  height: 40,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Background circle decoration
+              Positioned(
+                right: -32,
+                top: -32,
+                child: Container(
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    shape: BoxShape.circle,
+                    color: isPrimary
+                        ? Colors.white.withOpacity(0.1)
+                        : accentColor.withOpacity(0.1),
                   ),
-                  child: Icon(_getIcon(), color: Colors.white, size: 22),
                 ),
-                const SizedBox(width: 8),
+              ),
 
-                // Name & Badge
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (wallet.isPrimary)
+              // Content with padding
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row: Icon and Badge
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
+                            color: isPrimary
+                                ? Colors.white.withOpacity(0.2)
+                                : accentColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            'UTAMA',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
+                          child: Icon(
+                            _getIcon(),
+                            color: isPrimary ? Colors.white : accentColor,
+                            size: 20,
+                          ),
+                        ),
+                        if (isPrimary)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Utama',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                      const SizedBox(height: 4),
-                      Text(
-                        wallet.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      ],
+                    ),
+
+                    const Spacer(),
+
+                    // Bottom: Label and Balance
+                    Text(
+                      wallet.type == WalletType.belanja
+                          ? 'Dompet Belanja'
+                          : wallet.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: isPrimary
+                            ? Colors.blue.shade100
+                            : Colors.grey.shade400,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatCurrency(wallet.balance),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: isPrimary ? Colors.white : AppColors.textMain,
+                      ),
+                    ),
+                  ],
                 ),
-
-                // Menu dots
-                Icon(
-                  Icons.more_vert,
-                  color: Colors.white.withOpacity(0.7),
-                  size: 20,
-                ),
-              ],
-            ),
-
-            const Spacer(),
-
-            // Bottom: Balance info
-            Text(
-              'Saldo Tersedia',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.white.withOpacity(0.8),
-                fontWeight: FontWeight.w400,
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              _formatCurrency(wallet.balance),
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -5,9 +5,8 @@ import 'components/dashboard_header.dart';
 import 'components/wallet_card.dart';
 import 'components/quick_summary_section.dart';
 import 'components/recent_transactions_section.dart';
-import 'components/explore_section.dart';
 
-/// Dashboard main page - composes all dashboard sections
+/// Dashboard main page - matches HTML mockup design
 class DashboardIndexPage extends StatefulWidget {
   const DashboardIndexPage({super.key});
 
@@ -18,7 +17,7 @@ class DashboardIndexPage extends StatefulWidget {
 class _DashboardIndexPageState extends State<DashboardIndexPage> {
   int _currentNavIndex = 0;
 
-  // Sample data - in production, this would come from a BLoC/Provider
+  // Sample data
   final List<WalletData> _wallets = const [
     WalletData(
       type: WalletType.belanja,
@@ -26,57 +25,44 @@ class _DashboardIndexPageState extends State<DashboardIndexPage> {
       balance: 2150000,
       isPrimary: true,
     ),
-    WalletData(type: WalletType.tabungan, name: 'Tabungan', balance: 8500000),
-    WalletData(type: WalletType.darurat, name: 'Darurat', balance: 1900000),
+    WalletData(type: WalletType.tabungan, name: 'Tabungan', balance: 8000000),
+    WalletData(
+      type: WalletType.darurat,
+      name: 'Dana Darurat',
+      balance: 2400000,
+    ),
   ];
 
   final List<TransactionData> _transactions = [
     TransactionData(
       id: '1',
       title: 'Makan Siang',
-      wallet: 'Dompet Belanja',
-      timeAgo: 'Hari ini',
+      subtitle: 'Hari ini, 12:30',
       amount: 45000,
       type: TransactionType.expense,
-      icon: Icons.restaurant_outlined,
-      iconColor: const Color(0xFFFF6B6B),
+      icon: Icons.lunch_dining,
+      iconBgColor: Colors.orange.shade50,
+      iconColor: Colors.orange.shade500,
     ),
     TransactionData(
       id: '2',
-      title: 'Isi Bensin',
-      wallet: 'Dompet Belanja',
-      timeAgo: 'Kemarin',
-      amount: 30000,
+      title: 'Grab Ride',
+      subtitle: 'Kemarin',
+      amount: 25000,
       type: TransactionType.expense,
-      icon: Icons.local_gas_station_outlined,
-      iconColor: const Color(0xFF4ECDC4),
+      icon: Icons.local_taxi,
+      iconBgColor: Colors.blue.shade50,
+      iconColor: AppColors.primary,
     ),
     TransactionData(
       id: '3',
-      title: 'Gajian Freelance',
-      wallet: 'Dompet Tabungan',
-      timeAgo: '2 Hari lalu',
+      title: 'Project Desain',
+      subtitle: '20 Okt 2023',
       amount: 1500000,
       type: TransactionType.income,
-      icon: Icons.attach_money_rounded,
-      iconColor: const Color(0xFF10B981),
-    ),
-  ];
-
-  final List<ExploreItem> _exploreItems = const [
-    ExploreItem(
-      title: 'Belajar Keuangan',
-      subtitle: 'Modul & Tips Praktis',
-      icon: Icons.menu_book_outlined,
-      isGradient: true,
-      gradientStart: Color(0xFF8B5CF6),
-      gradientEnd: Color(0xFF6366F1),
-    ),
-    ExploreItem(
-      title: 'Riwayat Lengkap',
-      subtitle: 'Lihat arus kasmu',
-      icon: Icons.history_outlined,
-      isGradient: false,
+      icon: Icons.work,
+      iconBgColor: Colors.green.shade50,
+      iconColor: Colors.green.shade600,
     ),
   ];
 
@@ -84,12 +70,10 @@ class _DashboardIndexPageState extends State<DashboardIndexPage> {
       _wallets.fold(0, (sum, wallet) => sum + wallet.balance);
 
   void _onNavTap(int index) {
-    if (index == 2) return; // FAB position
     setState(() => _currentNavIndex = index);
   }
 
   void _onRecordTap() {
-    // TODO: Navigate to record transaction page
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Catat transaksi baru'),
@@ -102,69 +86,96 @@ class _DashboardIndexPageState extends State<DashboardIndexPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPage,
+      extendBody: true,
       body: Stack(
         children: [
-          // Purple gradient background at top
+          // Simple gradient background at top
+          Positioned(
+            top: -50,
+            left: 0,
+            right: -80,
+            child: Container(
+              height: 350,
+              decoration: const BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment(0.5, -0.5),
+                  radius: 1.2,
+                  colors: [
+                    Color.fromARGB(106, 211, 100, 255),
+                    Color(0xFFF4F1FF),
+                    Color.fromARGB(31, 255, 255, 255),
+                  ],
+                  stops: [0.0, 0.5, 0.7],
+                ),
+              ),
+            ),
+          ),
+          // Purple accent at top-right
           Positioned(
             top: 0,
-            left: 0,
             right: 0,
             child: Container(
-              height: 280,
+              width: 200,
+              height: 200,
               decoration: BoxDecoration(
                 gradient: RadialGradient(
-                  center: Alignment.topCenter,
-                  radius: 1.5,
+                  center: Alignment.topRight,
+                  radius: 1.0,
                   colors: [
-                    const Color(0xFFE8E0FF),
-                    const Color(0xFFF4F1FF),
-                    AppColors.bgPage,
+                    const Color(0xFFD4C4FC).withOpacity(0.6),
+                    const Color.fromARGB(0, 255, 255, 255),
                   ],
                 ),
               ),
             ),
           ),
 
-          // Main content
-          SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100),
+          // Main scrollable content
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 120),
+            child: SafeArea(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
-                  // Header
-                  DashboardHeader(
-                    userName: 'Alexandria',
-                    totalBalance: _totalBalance,
-                    onNotificationTap: () {
-                      // TODO: Navigate to notifications
-                    },
-                  ),
+                  // Header (avatar, greeting, notification)
+                  const DashboardHeader(userName: 'Alexandria'),
                   const SizedBox(height: 24),
 
-                  // Wallet Cards
+                  // Total Balance (centered)
+                  TotalBalanceSection(
+                    totalBalance: _totalBalance,
+                    percentChange: 2.5,
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Dompetku section (wallet cards)
                   WalletCardsSection(
                     wallets: _wallets,
                     onWalletTap: (wallet) {
                       // TODO: Navigate to wallet detail
                     },
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Quick Summary
-                  QuickSummarySection(
-                    weeklyExpense: 1200000,
-                    remainingBudgetPercent: 45,
                     onViewAll: () {
-                      // TODO: Navigate to analytics
+                      // TODO: Navigate to all wallets
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
 
-                  // Recent Transactions
+                  // Ringkasan Cepat section
+                  QuickSummarySection(
+                    weeklyExpense: 450000,
+                    remainingBudget: 1200000,
+                    budgetProgress: 0.65,
+                    onLearnTap: () {
+                      // TODO: Navigate to education
+                    },
+                    onHistoryTap: () {
+                      // TODO: Navigate to history
+                    },
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Transaksi Terakhir section
                   RecentTransactionsSection(
                     transactions: _transactions,
                     onViewAll: () {
@@ -172,25 +183,23 @@ class _DashboardIndexPageState extends State<DashboardIndexPage> {
                     },
                   ),
                   const SizedBox(height: 24),
-
-                  // Explore Section
-                  ExploreSection(
-                    items: _exploreItems,
-                    onItemTap: (item) {
-                      // TODO: Navigate to explore item
-                    },
-                  ),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
+
+          // Floating Bottom Navigation Bar
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: DahuKuBottomNavBar(
+              currentIndex: _currentNavIndex,
+              onTap: _onNavTap,
+              onFabPressed: _onRecordTap,
+            ),
+          ),
         ],
-      ),
-      bottomNavigationBar: DahuKuBottomNavBar(
-        currentIndex: _currentNavIndex,
-        onTap: _onNavTap,
-        onFabPressed: _onRecordTap,
       ),
     );
   }

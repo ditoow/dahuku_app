@@ -48,7 +48,7 @@ class ExploreSection extends StatelessWidget {
 
         // Cards horizontal list
         SizedBox(
-          height: 120,
+          height: 130,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -130,8 +130,7 @@ class _ExploreCard extends StatelessWidget {
               ),
             ),
 
-            const Spacer(),
-
+            const Spacer(), // Use Spacer to push content to the bottom
             // Title
             Text(
               item.title,

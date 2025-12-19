@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
-/// Transaction type enum
-enum TransactionType { expense, income }
+/// Transaction type
+enum TransactionType { income, expense }
 
-/// Transaction model
+/// Transaction data model
 class TransactionData {
   final String id;
   final String title;
-  final String wallet;
-  final String timeAgo;
+  final String subtitle;
   final double amount;
   final TransactionType type;
   final IconData icon;
+  final Color iconBgColor;
   final Color iconColor;
 
   const TransactionData({
     required this.id,
     required this.title,
-    required this.wallet,
-    required this.timeAgo,
+    required this.subtitle,
     required this.amount,
     required this.type,
     required this.icon,
+    required this.iconBgColor,
     required this.iconColor,
   });
 }
 
-/// Recent transactions section
+/// Recent transactions section matching HTML mockup
 class RecentTransactionsSection extends StatelessWidget {
   final List<TransactionData> transactions;
   final VoidCallback? onViewAll;
@@ -41,11 +41,10 @@ class RecentTransactionsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
+          // Section header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -53,25 +52,24 @@ class RecentTransactionsSection extends StatelessWidget {
                 'Transaksi Terakhir',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textMain,
                 ),
               ),
-              if (onViewAll != null)
-                GestureDetector(
-                  onTap: onViewAll,
-                  child: const Text(
-                    'Lihat Semua',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primary,
-                    ),
+              GestureDetector(
+                onTap: onViewAll,
+                child: Text(
+                  'Lihat Semua',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
                   ),
                 ),
+              ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // Transaction list
           ...transactions.map((tx) => _TransactionItem(transaction: tx)),
@@ -81,7 +79,7 @@ class RecentTransactionsSection extends StatelessWidget {
   }
 }
 
-/// Individual transaction item
+/// Transaction list item
 class _TransactionItem extends StatelessWidget {
   final TransactionData transaction;
 
@@ -99,21 +97,19 @@ class _TransactionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isExpense = transaction.type == TransactionType.expense;
-    final amountColor = isExpense ? AppColors.error : AppColors.success;
-    final amountPrefix = isExpense ? '-' : '+';
+    final isIncome = transaction.type == TransactionType.income;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           // Icon container
           Container(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: transaction.iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: transaction.iconBgColor,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               transaction.icon,
@@ -121,9 +117,9 @@ class _TransactionItem extends StatelessWidget {
               size: 22,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
 
-          // Title & Subtitle
+          // Title and subtitle
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,18 +128,14 @@ class _TransactionItem extends StatelessWidget {
                   transaction.title,
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.textMain,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${transaction.wallet} • ${transaction.timeAgo}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textLight,
-                    fontWeight: FontWeight.w400,
-                  ),
+                  transaction.subtitle,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
                 ),
               ],
             ),
@@ -151,11 +143,11 @@ class _TransactionItem extends StatelessWidget {
 
           // Amount
           Text(
-            '$amountPrefix${_formatCurrency(transaction.amount)}',
+            '${isIncome ? '+' : '-'}${_formatCurrency(transaction.amount)}',
             style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: amountColor,
+              fontWeight: FontWeight.w700,
+              color: isIncome ? Colors.green.shade600 : AppColors.textMain,
             ),
           ),
         ],

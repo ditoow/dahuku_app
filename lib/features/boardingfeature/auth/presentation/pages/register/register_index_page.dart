@@ -73,7 +73,6 @@ class _RegisterIndexPageState extends State<RegisterIndexPage> {
                                     children: [
                                       // App Bar
                                       const RegisterAppBar(),
-
                                       // Content
                                       Padding(
                                         padding: const EdgeInsets.symmetric(

@@ -23,13 +23,6 @@ class RegisterHeader extends StatelessWidget {
                   colors: [Color(0xFF6B7AFF), AppColors.primary],
                 ),
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: const Icon(Icons.group_add, size: 44, color: Colors.white),
             ),
