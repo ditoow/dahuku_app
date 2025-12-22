@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import '../../../../../core/constants/app_colors.dart';
 import '../bloc/questionnaire_bloc.dart';
 import 'components/debt_input_section.dart';
@@ -117,7 +118,7 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => QuestionnaireBloc(),
+      create: (context) => GetIt.I<QuestionnaireBloc>(),
       child: BlocConsumer<QuestionnaireBloc, QuestionnaireState>(
         listener: (context, state) {
           if (state.status == QuestionnaireStatus.completed) {
@@ -214,7 +215,45 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
                           if (state.currentQuestionIndex ==
                               _questions.length - 1) {
                             context.read<QuestionnaireBloc>().add(
-                              QuestionnaireSubmitted(),
+                              QuestionnaireSubmitted(
+                                initialBelanja:
+                                    double.tryParse(
+                                      _belanjController.text.replaceAll(
+                                        RegExp(r'[^0-9]'),
+                                        '',
+                                      ),
+                                    ) ??
+                                    0,
+                                initialTabungan:
+                                    double.tryParse(
+                                      _tabunganController.text.replaceAll(
+                                        RegExp(r'[^0-9]'),
+                                        '',
+                                      ),
+                                    ) ??
+                                    0,
+                                initialDarurat:
+                                    double.tryParse(
+                                      _daruratController.text.replaceAll(
+                                        RegExp(r'[^0-9]'),
+                                        '',
+                                      ),
+                                    ) ??
+                                    0,
+                                hasDebt:
+                                    _debtAmountController.text.isNotEmpty &&
+                                    _selectedDebtType != DebtType.none,
+                                debtAmount: double.tryParse(
+                                  _debtAmountController.text.replaceAll(
+                                    RegExp(r'[^0-9]'),
+                                    '',
+                                  ),
+                                ),
+                                debtType: _selectedDebtType
+                                    .toString()
+                                    .split('.')
+                                    .last,
+                              ),
                             );
                           } else {
                             context.read<QuestionnaireBloc>().add(

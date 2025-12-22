@@ -17,5 +17,12 @@ class ToggleHighContrast extends AccountEvent {
   ToggleHighContrast(this.value);
 }
 
+class UpdateProfile extends AccountEvent {
+  final String? name;
+  final String? phone;
+  final String? avatarUrl;
+
+  UpdateProfile({this.name, this.phone, this.avatarUrl});
+}
 
 class LogoutRequested extends AccountEvent {}

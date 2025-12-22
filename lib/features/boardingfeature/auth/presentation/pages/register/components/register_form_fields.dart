@@ -37,7 +37,7 @@ class RegisterFormFields extends StatelessWidget {
 
         // Email field
         AuthTextField(
-          label: 'No. HP atau Email',
+          label: 'Email',
           hint: 'Cth: budi@email.com',
           prefixIcon: Icons.mail_outline,
           controller: emailController,
@@ -45,6 +45,11 @@ class RegisterFormFields extends StatelessWidget {
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Email tidak boleh kosong';
+            }
+            // Validasi format email
+            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+            if (!emailRegex.hasMatch(value)) {
+              return 'Format email tidak valid';
             }
             return null;
           },
@@ -69,36 +74,6 @@ class RegisterFormFields extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
-
-        // Terms text
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textSub,
-              height: 1.5,
-            ),
-            children: [
-              const TextSpan(text: 'Dengan mendaftar, Anda menyetujui '),
-              TextSpan(
-                text: 'Syarat & Ketentuan',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const TextSpan(text: ' serta '),
-              TextSpan(
-                text: 'Kebijakan Privasi',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const TextSpan(text: ' kami.'),
-            ],
-          ),
-        ),
       ],
     );
   }

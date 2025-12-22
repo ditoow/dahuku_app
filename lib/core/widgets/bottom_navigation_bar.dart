@@ -62,6 +62,10 @@ class _DahuKuBottomNavBarState extends State<DahuKuBottomNavBar>
   late Animation<double> _positionAnimation;
   int _previousIndex = 0;
 
+  // For drag gesture
+  double _dragOffset = 0.0;
+  bool _isDragging = false;
+
   @override
   void initState() {
     super.initState();
@@ -87,7 +91,7 @@ class _DahuKuBottomNavBarState extends State<DahuKuBottomNavBar>
   @override
   void didUpdateWidget(DahuKuBottomNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentIndex != widget.currentIndex) {
+    if (oldWidget.currentIndex != widget.currentIndex && !_isDragging) {
       _previousIndex = oldWidget.currentIndex;
       _controller.forward(from: 0);
     }
@@ -97,6 +101,39 @@ class _DahuKuBottomNavBarState extends State<DahuKuBottomNavBar>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _handleDragStart(DragStartDetails details) {
+    setState(() {
+      _isDragging = true;
+      _dragOffset = 0.0;
+    });
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details, double itemWidth) {
+    setState(() {
+      _dragOffset += details.delta.dx;
+    });
+  }
+
+  void _handleDragEnd(DragEndDetails details, double itemWidth) {
+    // Calculate which index to snap to
+    final totalItems = DahuKuBottomNavBar.items.length;
+    final currentCenter =
+        (widget.currentIndex * itemWidth) + (itemWidth / 2) + _dragOffset;
+    int newIndex = ((currentCenter - itemWidth / 2) / itemWidth).round();
+
+    // Clamp to valid range
+    newIndex = newIndex.clamp(0, totalItems - 1);
+
+    setState(() {
+      _isDragging = false;
+      _dragOffset = 0.0;
+    });
+
+    if (newIndex != widget.currentIndex) {
+      widget.onTap(newIndex);
+    }
   }
 
   @override
@@ -141,63 +178,91 @@ class _DahuKuBottomNavBarState extends State<DahuKuBottomNavBar>
                         constraints.maxWidth / DahuKuBottomNavBar.items.length;
                     final indicatorBaseSize = 44.0;
 
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Sliding indicator with stretch animation
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            final stretchFactor = _stretchAnimation.value;
-                            final positionProgress = _positionAnimation.value;
+                    return GestureDetector(
+                      onHorizontalDragStart: _handleDragStart,
+                      onHorizontalDragUpdate: (details) =>
+                          _handleDragUpdate(details, itemWidth),
+                      onHorizontalDragEnd: (details) =>
+                          _handleDragEnd(details, itemWidth),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // Sliding indicator with stretch animation
+                          AnimatedBuilder(
+                            animation: _controller,
+                            builder: (context, child) {
+                              double currentCenter;
+                              double stretchFactor;
 
-                            // Interpolate position from previous to current index
-                            final fromCenter =
-                                (_previousIndex * itemWidth) + (itemWidth / 2);
-                            final toCenter =
-                                (widget.currentIndex * itemWidth) +
-                                (itemWidth / 2);
-                            final currentCenter =
-                                fromCenter +
-                                (toCenter - fromCenter) * positionProgress;
+                              if (_isDragging) {
+                                // During drag, follow finger position
+                                currentCenter =
+                                    (widget.currentIndex * itemWidth) +
+                                    (itemWidth / 2) +
+                                    _dragOffset;
+                                // Clamp to navbar bounds
+                                currentCenter = currentCenter.clamp(
+                                  itemWidth / 2,
+                                  constraints.maxWidth - itemWidth / 2,
+                                );
+                                stretchFactor = 1.0;
+                              } else {
+                                // Normal animation
+                                stretchFactor = _stretchAnimation.value;
+                                final positionProgress =
+                                    _positionAnimation.value;
 
-                            final indicatorWidth =
-                                indicatorBaseSize * stretchFactor;
-                            final left = currentCenter - (indicatorWidth / 2);
+                                final fromCenter =
+                                    (_previousIndex * itemWidth) +
+                                    (itemWidth / 2);
+                                final toCenter =
+                                    (widget.currentIndex * itemWidth) +
+                                    (itemWidth / 2);
+                                currentCenter =
+                                    fromCenter +
+                                    (toCenter - fromCenter) * positionProgress;
+                              }
 
-                            return Positioned(
-                              left: left,
-                              child: Container(
-                                width: indicatorWidth,
-                                height: indicatorBaseSize,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withAlpha(38),
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                              final indicatorWidth =
+                                  indicatorBaseSize * stretchFactor;
+                              final left = currentCenter - (indicatorWidth / 2);
 
-                        // Nav items row - centered properly
-                        Row(
-                          children: List.generate(
-                            DahuKuBottomNavBar.items.length,
-                            (index) {
-                              final item = DahuKuBottomNavBar.items[index];
-                              final isActive = widget.currentIndex == index;
-
-                              return Expanded(
-                                child: _NavBarItem(
-                                  icon: isActive ? item.activeIcon : item.icon,
-                                  isActive: isActive,
-                                  onTap: () => widget.onTap(index),
+                              return Positioned(
+                                left: left,
+                                child: Container(
+                                  width: indicatorWidth,
+                                  height: indicatorBaseSize,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withAlpha(38),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
                                 ),
                               );
                             },
                           ),
-                        ),
-                      ],
+
+                          // Nav items row - centered properly
+                          Row(
+                            children: List.generate(
+                              DahuKuBottomNavBar.items.length,
+                              (index) {
+                                final item = DahuKuBottomNavBar.items[index];
+                                final isActive = widget.currentIndex == index;
+
+                                return Expanded(
+                                  child: _NavBarItem(
+                                    icon: isActive
+                                        ? item.activeIcon
+                                        : item.icon,
+                                    isActive: isActive,
+                                    onTap: () => widget.onTap(index),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

@@ -16,11 +16,26 @@ class AccountRepository {
     required this.localStorageService,
   });
 
-  Future<UserModel> fetchUser() => accountService.getUser();
+  /// Fetch current user profile
+  Future<UserModel?> fetchUser() => accountService.getCurrentUser();
 
-  Future<SettingsModel> fetchSettings() => accountService.getSettings();
+  /// Fetch user settings
+  Future<SettingsModel> fetchSettings() async {
+    final settings = await accountService.getSettings();
+    return settings ?? SettingsModel.defaults();
+  }
 
+  /// Update user profile
+  Future<UserModel> updateUser(UserModel user) =>
+      accountService.updateUser(user);
+
+  /// Update user settings
+  Future<SettingsModel> updateSettings(SettingsModel settings) =>
+      accountService.updateSettings(settings);
+
+  /// Backup data
   Future<BackupModel> backupData() => backupService.backupData();
 
+  /// Reset all local data
   Future<void> resetData() => localStorageService.resetData();
 }

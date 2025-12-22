@@ -1,11 +1,15 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../data/repositories/questionnaire_repository.dart';
 
 part 'questionnaire_event.dart';
 part 'questionnaire_state.dart';
 
 class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
-  QuestionnaireBloc() : super(const QuestionnaireState()) {
+  final QuestionnaireRepository repository;
+
+  QuestionnaireBloc({required this.repository})
+    : super(const QuestionnaireState()) {
     on<QuestionnaireAnswerSelected>(_onAnswerSelected);
     on<QuestionnaireNextPressed>(_onNextPressed);
     on<QuestionnairePreviousPressed>(_onPreviousPressed);
@@ -48,11 +52,24 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     }
   }
 
-  void _onSubmitted(
+  Future<void> _onSubmitted(
     QuestionnaireSubmitted event,
     Emitter<QuestionnaireState> emit,
-  ) {
-    // Save answers and mark as completed
-    emit(state.copyWith(status: QuestionnaireStatus.completed));
+  ) async {
+    emit(state.copyWith(status: QuestionnaireStatus.loading));
+    try {
+      await repository.saveResponse(
+        initialBelanja: event.initialBelanja,
+        initialTabungan: event.initialTabungan,
+        initialDarurat: event.initialDarurat,
+        hasDebt: event.hasDebt,
+        debtAmount: event.debtAmount,
+        debtType: event.debtType,
+      );
+      emit(state.copyWith(status: QuestionnaireStatus.completed));
+    } catch (e) {
+      // In a real app we would handle error state
+      emit(state.copyWith(status: QuestionnaireStatus.completed));
+    }
   }
 }

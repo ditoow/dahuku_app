@@ -7,6 +7,12 @@ abstract class AuthEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+/// Check current authentication status
+class AuthCheckRequested extends AuthEvent {
+  const AuthCheckRequested();
+}
+
+/// Login with email and password
 class AuthLoginRequested extends AuthEvent {
   final String email;
   final String password;
@@ -17,6 +23,7 @@ class AuthLoginRequested extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
+/// Register new user
 class AuthRegisterRequested extends AuthEvent {
   final String name;
   final String email;
@@ -32,4 +39,7 @@ class AuthRegisterRequested extends AuthEvent {
   List<Object?> get props => [name, email, password];
 }
 
-class AuthLogoutRequested extends AuthEvent {}
+/// Logout current user
+class AuthLogoutRequested extends AuthEvent {
+  const AuthLogoutRequested();
+}

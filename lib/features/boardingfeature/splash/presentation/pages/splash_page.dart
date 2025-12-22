@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../../core/constants/app_colors.dart';
 
 /// Splash screen with DahuKu branding
@@ -36,12 +37,25 @@ class _SplashPageState extends State<SplashPage>
 
     _controller.forward();
 
-    // Navigate to onboarding after delay
-    Timer(const Duration(seconds: 1), () {
+    // Check auth state and navigate
+    Timer(const Duration(seconds: 2), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/onboarding');
+        _checkAuthAndNavigate();
       }
     });
+  }
+
+  /// Check if user is already logged in
+  void _checkAuthAndNavigate() {
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (session != null) {
+      // User sudah login -> langsung ke dashboard (atau PIN jika ada)
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      // User belum login -> ke onboarding
+      Navigator.pushReplacementNamed(context, '/onboarding');
+    }
   }
 
   @override
@@ -64,10 +78,7 @@ class _SplashPageState extends State<SplashPage>
                   gradient: RadialGradient(
                     center: Alignment.topLeft,
                     radius: 1.5,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.15),
-                      Colors.transparent,
-                    ],
+                    colors: [Colors.white.withAlpha(38), Colors.transparent],
                   ),
                 ),
               ),
@@ -79,7 +90,7 @@ class _SplashPageState extends State<SplashPage>
                     center: Alignment.bottomRight,
                     radius: 1.5,
                     colors: [
-                      AppColors.accentPurple.withValues(alpha: 0.2),
+                      AppColors.accentPurple.withAlpha(51),
                       Colors.transparent,
                     ],
                   ),
@@ -100,14 +111,12 @@ class _SplashPageState extends State<SplashPage>
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
+                          color: Colors.white.withAlpha(38),
                           borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
-                          ),
+                          border: Border.all(color: Colors.white.withAlpha(51)),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.3),
+                              color: AppColors.primary.withAlpha(77),
                               blurRadius: 20,
                               spreadRadius: 0,
                             ),
@@ -157,24 +166,24 @@ class _SplashPageState extends State<SplashPage>
               ),
             ),
 
-            // Loading spinner
-            // Positioned(
-            //   bottom: 64,
-            //   left: 0,
-            //   right: 0,
-            //   child: Center(
-            //     child: SizedBox(
-            //       width: 32,
-            //       height: 32,
-            //       child: CircularProgressIndicator(
-            //         strokeWidth: 3,
-            //         valueColor: AlwaysStoppedAnimation<Color>(
-            //           Colors.white.withValues(alpha: 0.8),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            // Loading indicator
+            Positioned(
+              bottom: 80,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.white.withAlpha(179),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

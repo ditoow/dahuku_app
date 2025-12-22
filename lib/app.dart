@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import 'core/theme/app_theme.dart';
 
@@ -10,16 +11,13 @@ import 'features/boardingfeature/auth/presentation/pages/login/login_index_page.
 import 'features/boardingfeature/auth/presentation/pages/register/register_index_page.dart';
 import 'features/boardingfeature/pin/presentation/pin_index_page.dart';
 import 'features/boardingfeature/questionnaire/presentation/questionnaire_index_page.dart';
+import 'features/boardingfeature/auth/bloc/auth_bloc.dart';
 
 // Dashboard
 import 'main_shell_page.dart';
 
-// Account (punyamu)
+// Account
 import 'features/account/bloc/account_bloc.dart';
-import 'features/account/data/repositories/account_repository.dart';
-import 'features/account/data/services/account_service.dart';
-import 'features/account/data/services/backup_service.dart';
-import 'features/account/data/services/local_storage_service.dart';
 
 /// Main app widget with Navigator routes
 class DahuKuApp extends StatelessWidget {
@@ -27,37 +25,27 @@ class DahuKuApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
+    return MultiBlocProvider(
       providers: [
-        RepositoryProvider<AccountRepository>(
-          create: (_) => AccountRepository(
-            accountService: AccountService(),
-            backupService: BackupService(),
-            localStorageService: LocalStorageService(),
-          ),
+        BlocProvider<AuthBloc>(
+          create: (_) => GetIt.I<AuthBloc>()..add(AuthCheckRequested()),
         ),
+        BlocProvider<AccountBloc>(create: (_) => GetIt.I<AccountBloc>()),
       ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider<AccountBloc>(
-            create: (context) => AccountBloc(context.read<AccountRepository>()),
-          ),
-        ],
-        child: MaterialApp(
-          title: 'DahuKu',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          initialRoute: '/',
-          routes: {
-            '/': (context) => const SplashPage(),
-            '/onboarding': (context) => const OnboardingPage(),
-            '/login': (context) => const LoginIndexPage(),
-            '/register': (context) => const RegisterIndexPage(),
-            '/pin': (context) => const PinIndexPage(),
-            '/questionnaire': (context) => const QuestionnaireIndexPage(),
-            '/dashboard': (context) => const MainShellPage(),
-          },
-        ),
+      child: MaterialApp(
+        title: 'DahuKu',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const SplashPage(),
+          '/onboarding': (context) => const OnboardingPage(),
+          '/login': (context) => const LoginIndexPage(),
+          '/register': (context) => const RegisterIndexPage(),
+          '/pin': (context) => const PinIndexPage(),
+          '/questionnaire': (context) => const QuestionnaireIndexPage(),
+          '/dashboard': (context) => const MainShellPage(),
+        },
       ),
     );
   }

@@ -1,57 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/widgets/bottom_navigation_bar.dart';
 import 'components/comics_sections.dart';
 
 /// Education main page - displays comics list
-class EducationIndexPage extends StatefulWidget {
+/// Refactored to be just the content for use in shells
+class EducationIndexPage extends StatelessWidget {
   const EducationIndexPage({super.key});
 
   @override
-  State<EducationIndexPage> createState() => _EducationIndexPageState();
-}
-
-class _EducationIndexPageState extends State<EducationIndexPage> {
-  final int _currentNavIndex = 2;
-
-  void _onNavTap(int index) {
-    if (index != _currentNavIndex) {
-      if (index == 0) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      }
-    }
-  }
-
-  void _onRecordTap() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Catat transaksi baru'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgPage,
-      extendBody: true,
-      body: Stack(
-        children: [
-          const EducationContent(),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: DahuKuBottomNavBar(
-              currentIndex: _currentNavIndex,
-              onTap: _onNavTap,
-              onFabPressed: _onRecordTap,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const EducationContent();
   }
 }
 
@@ -80,7 +38,9 @@ class _EducationContentState extends State<EducationContent> {
   }
 
   void _onScroll() {
-    final shouldShowTitle = _scrollController.offset > _titleShowThreshold;
+    final shouldShowTitle =
+        _scrollController.hasClients &&
+        _scrollController.offset > _titleShowThreshold;
     if (shouldShowTitle != _showTitle) {
       setState(() => _showTitle = shouldShowTitle);
     }

@@ -101,10 +101,8 @@ class _ExploreCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: item.isGradient
-                  ? (item.gradientStart ?? AppColors.accentPurple).withOpacity(
-                      0.3,
-                    )
-                  : Colors.black.withOpacity(0.04),
+                  ? (item.gradientStart ?? AppColors.accentPurple).withAlpha(77)
+                  : Colors.black.withAlpha(10),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -119,8 +117,8 @@ class _ExploreCard extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: item.isGradient
-                    ? Colors.white.withOpacity(0.2)
-                    : AppColors.primary.withOpacity(0.1),
+                    ? Colors.white.withAlpha(51)
+                    : AppColors.primary.withAlpha(26),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -148,7 +146,7 @@ class _ExploreCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 color: item.isGradient
-                    ? Colors.white.withOpacity(0.8)
+                    ? Colors.white.withAlpha(204)
                     : AppColors.textLight,
                 fontWeight: FontWeight.w400,
               ),

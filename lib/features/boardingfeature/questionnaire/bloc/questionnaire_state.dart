@@ -1,6 +1,6 @@
 part of 'questionnaire_bloc.dart';
 
-enum QuestionnaireStatus { initial, inProgress, completed, error }
+enum QuestionnaireStatus { initial, loading, inProgress, completed, error }
 
 class QuestionnaireState extends Equatable {
   final int currentQuestionIndex;

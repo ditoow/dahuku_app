@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../bloc/dashboard_bloc.dart';
+import '../../bloc/dashboard_state.dart';
 
 /// Wallet type enum
 enum WalletType { belanja, tabungan, darurat }
@@ -19,76 +22,117 @@ class WalletData {
   });
 }
 
-/// Dompetku section with horizontal scrollable wallet cards
+/// Dompetku section with horizontal scrollable wallet cards (smart component)
 class WalletCardsSection extends StatelessWidget {
-  final List<WalletData> wallets;
-  final ValueChanged<WalletData>? onWalletTap;
-  final VoidCallback? onViewAll;
+  const WalletCardsSection({super.key});
 
-  const WalletCardsSection({
-    super.key,
-    required this.wallets,
-    this.onWalletTap,
-    this.onViewAll,
-  });
+  List<WalletData> _convertWallets(List<dynamic> models) {
+    if (models.isEmpty) return [];
+    return models.map((m) {
+      WalletType uiType;
+      // Handle both converting from internal WalletModel or just using the model directly if mapped
+      // Assuming models are WalletModel from data layer
+      final typeStr = m.type.toString().split('.').last;
+      switch (typeStr) {
+        case 'belanja':
+          uiType = WalletType.belanja;
+          break;
+        case 'tabungan':
+          uiType = WalletType.tabungan;
+          break;
+        case 'darurat':
+          uiType = WalletType.darurat;
+          break;
+        default:
+          uiType = WalletType.belanja;
+      }
+
+      return WalletData(
+        type: uiType,
+        name: m.name,
+        balance: m.balance,
+        isPrimary: m.isPrimary,
+      );
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Section header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Dompetku',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textMain,
-                ),
-              ),
-              GestureDetector(
-                onTap: onViewAll,
-                child: Text(
-                  'SEMUA',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
+    return BlocBuilder<DashboardBloc, DashboardState>(
+      builder: (context, state) {
+        final wallets = _convertWallets(state.wallets);
 
-        // Cards horizontal scroll
-        SizedBox(
-          height: 180, // Increased for shadow space
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none, // Prevent shadow clipping
-            padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
-            itemCount: wallets.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: index < wallets.length - 1 ? 16 : 0,
+        return Column(
+          children: [
+            // Section header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Dompetku',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textMain,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to all wallets
+                    },
+                    child: Text(
+                      'SEMUA',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Cards horizontal scroll
+            if (wallets.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text("Belum ada dompet"),
+              )
+            else
+              SizedBox(
+                height: 180, // Increased for shadow space
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none, // Prevent shadow clipping
+                  padding: const EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    bottom: 16,
+                  ),
+                  itemCount: wallets.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        right: index < wallets.length - 1 ? 16 : 0,
+                      ),
+                      child: _WalletCard(
+                        wallet: wallets[index],
+                        onTap: () {
+                          // Navigate to wallet detail
+                        },
+                      ),
+                    );
+                  },
                 ),
-                child: _WalletCard(
-                  wallet: wallets[index],
-                  onTap: () => onWalletTap?.call(wallets[index]),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -153,12 +197,12 @@ class _WalletCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           border: isPrimary
               ? null
-              : Border.all(color: accentColor.withOpacity(0.2), width: 1),
+              : Border.all(color: accentColor.withAlpha(51), width: 1),
           boxShadow: [
             BoxShadow(
               color: isPrimary
-                  ? AppColors.primary.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? AppColors.primary.withAlpha(77)
+                  : Colors.black.withAlpha(13),
               blurRadius: isPrimary ? 20 : 10,
               offset: const Offset(0, 8),
             ),
@@ -178,8 +222,8 @@ class _WalletCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isPrimary
-                        ? Colors.white.withOpacity(0.1)
-                        : accentColor.withOpacity(0.1),
+                        ? Colors.white.withAlpha(26)
+                        : accentColor.withAlpha(26),
                   ),
                 ),
               ),
@@ -199,8 +243,8 @@ class _WalletCard extends StatelessWidget {
                           height: 40,
                           decoration: BoxDecoration(
                             color: isPrimary
-                                ? Colors.white.withOpacity(0.2)
-                                : accentColor.withOpacity(0.1),
+                                ? Colors.white.withAlpha(51)
+                                : accentColor.withAlpha(26),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -216,7 +260,7 @@ class _WalletCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withAlpha(26),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(

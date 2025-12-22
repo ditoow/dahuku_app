@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import '../../../../../../core/constants/app_colors.dart';
 import '../../../bloc/auth_bloc.dart';
 import 'components/login_app_bar.dart';
@@ -31,11 +32,12 @@ class _LoginIndexPageState extends State<LoginIndexPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc(),
+      create: (context) => GetIt.I<AuthBloc>(),
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
-            Navigator.pushReplacementNamed(context, '/pin');
+            // User sudah punya akun, langsung ke dashboard (skip onboarding)
+            Navigator.pushReplacementNamed(context, '/dashboard');
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -105,18 +107,14 @@ class _LoginIndexPageState extends State<LoginIndexPage> {
                                 LoginBottomSection(
                                   isLoading: state.status == AuthStatus.loading,
                                   onLoginPressed: () {
-                                    // if (_formKey.currentState!.validate()) {
-                                    //   context.read<AuthBloc>().add(
-                                    //     AuthLoginRequested(
-                                    //       email: _emailController.text,
-                                    //       password: _passwordController.text,
-                                    //     ),
-                                    //   );
-                                    // }
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      '/pin',
-                                    );
+                                    if (_formKey.currentState!.validate()) {
+                                      context.read<AuthBloc>().add(
+                                        AuthLoginRequested(
+                                          email: _emailController.text,
+                                          password: _passwordController.text,
+                                        ),
+                                      );
+                                    }
                                   },
                                   onRegisterPressed: () {
                                     Navigator.pushReplacementNamed(

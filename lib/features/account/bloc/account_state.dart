@@ -9,19 +9,18 @@ class AccountLoaded extends AccountState {
   final UserModel user;
   final SettingsModel settings;
 
-  AccountLoaded({
-    required this.user,
-    required this.settings,
-  });
+  AccountLoaded({required this.user, required this.settings});
 
-  /// 🔥 copyWith untuk update sebagian state
-  AccountLoaded copyWith({
-    UserModel? user,
-    SettingsModel? settings,
-  }) {
+  /// copyWith untuk update sebagian state
+  AccountLoaded copyWith({UserModel? user, SettingsModel? settings}) {
     return AccountLoaded(
       user: user ?? this.user,
       settings: settings ?? this.settings,
     );
   }
+}
+
+class AccountError extends AccountState {
+  final String message;
+  AccountError(this.message);
 }

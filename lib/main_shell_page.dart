@@ -1,7 +1,12 @@
 import 'package:dahuku_app/features/account/presentation/pages/account_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'core/constants/app_colors.dart';
 import 'core/widgets/bottom_navigation_bar.dart';
+import 'features/boardingfeature/auth/bloc/auth_bloc.dart';
+import 'features/dashboard/bloc/dashboard_bloc.dart';
+import 'features/dashboard/bloc/dashboard_event.dart';
 import 'features/dashboard/presentation/dashboard_index_page.dart';
 import 'features/education/presentation/education_index_page.dart';
 
@@ -72,41 +77,52 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgPage,
-      extendBody: true,
-      body: Stack(
-        children: [
-          // PageView for animated page transitions
-          PageView(
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            physics:
-                const NeverScrollableScrollPhysics(), // Disable swipe, use navbar only
-            children: const [
-              // Page 0: Dashboard (Beranda)
-              DashboardContent(),
-              // Page 1: Analisis
-              _AnalisisPlaceholder(),
-              // Page 2: Education (Edukasi)
-              EducationContent(),
-              // Page 3: Account (Akun)
-              AccountPage(),
+    return BlocProvider(
+      create: (_) =>
+          GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state.status == AuthStatus.unauthenticated) {
+            Navigator.pushReplacementNamed(context, '/login');
+          }
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.bgPage,
+          resizeToAvoidBottomInset:
+              false, // Prevent navbar from moving up when keyboard appears
+          extendBody: true,
+          body: Stack(
+            children: [
+              // PageView for animated page transitions
+              PageView(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                // Swipe enabled - user can swipe left/right to change tabs
+                children: const [
+                  // Page 0: Dashboard (Beranda)
+                  DashboardIndexPage(),
+                  // Page 1: Analisis
+                  _AnalisisPlaceholder(),
+                  // Page 2: Education (Edukasi)
+                  EducationIndexPage(),
+                  // Page 3: Account (Akun)
+                  AccountPage(),
+                ],
+              ),
+              // Floating Bottom Navigation Bar
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: DahuKuBottomNavBar(
+                  currentIndex: _currentIndex,
+                  onTap: _onNavTap,
+                  onFabPressed: _onRecordTap,
+                ),
+              ),
             ],
           ),
-
-          // Floating Bottom Navigation Bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: DahuKuBottomNavBar(
-              currentIndex: _currentIndex,
-              onTap: _onNavTap,
-              onFabPressed: _onRecordTap,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -118,11 +134,49 @@ class _AnalisisPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          'Halaman Analisis',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    return Scaffold(
+      backgroundColor: AppColors.bgPage,
+      body: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bar_chart_rounded,
+              size: 80,
+              color: AppColors.primary.withAlpha(51),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Analisis Keuangan',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textMain,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Detail pengeluaran dan pemasukan kamu akan muncul di sini segera!',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(26),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Segera Hadir',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

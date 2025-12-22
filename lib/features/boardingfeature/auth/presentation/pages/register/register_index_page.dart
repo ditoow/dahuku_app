@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import '../../../../../../core/constants/app_colors.dart';
 import '../../../bloc/auth_bloc.dart';
 import 'components/register_app_bar.dart';
@@ -33,7 +34,7 @@ class _RegisterIndexPageState extends State<RegisterIndexPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc(),
+      create: (context) => GetIt.I<AuthBloc>(),
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
