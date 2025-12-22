@@ -16,6 +16,9 @@ import 'features/boardingfeature/auth/bloc/auth_bloc.dart';
 // Dashboard
 import 'main_shell_page.dart';
 
+// Transaction
+import 'features/dashboard/transaction/presentation/pages/featurea_index_page.dart';
+
 // Account
 import 'features/account/bloc/account_bloc.dart';
 
@@ -45,6 +48,7 @@ class DahuKuApp extends StatelessWidget {
           '/pin': (context) => const PinIndexPage(),
           '/questionnaire': (context) => const QuestionnaireIndexPage(),
           '/dashboard': (context) => const MainShellPage(),
+          '/catat-transaksi': (context) => const FeatureaIndexPage(),
         },
       ),
     );
