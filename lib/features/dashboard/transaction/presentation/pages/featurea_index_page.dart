@@ -32,7 +32,9 @@ class _FeatureaPageContent extends StatelessWidget {
     return BlocConsumer<FeatureaBloc, FeatureaState>(
       listener: (context, state) {
         // Show success message when transaction is saved
-        if (state.amount == 0 && state.selectedExpenseCategory == null && state.selectedIncomeSource == null) {
+        if (state.amount == 0 &&
+            state.selectedExpenseCategory == null &&
+            state.selectedIncomeSource == null) {
           // This indicates the form was just reset after a successful save
           // We could show a success message here if needed
         }
@@ -92,8 +94,8 @@ class _FeatureaPageContent extends StatelessWidget {
                               isIncome: state.isIncome,
                               onChanged: (isIncome) {
                                 context.read<FeatureaBloc>().add(
-                                      ToggleTransactionType(isIncome),
-                                    );
+                                  ToggleTransactionType(isIncome),
+                                );
                               },
                             ),
                             const SizedBox(height: 20),
@@ -104,8 +106,8 @@ class _FeatureaPageContent extends StatelessWidget {
                               amount: state.amount,
                               onAmountChanged: (amount) {
                                 context.read<FeatureaBloc>().add(
-                                      UpdateAmount(amount),
-                                    );
+                                  UpdateAmount(amount),
+                                );
                               },
                             ),
                             const SizedBox(height: 16),
@@ -120,17 +122,18 @@ class _FeatureaPageContent extends StatelessWidget {
                             // Category grid
                             CategoryGrid(
                               isIncome: state.isIncome,
-                              selectedExpenseCategory: state.selectedExpenseCategory,
+                              selectedExpenseCategory:
+                                  state.selectedExpenseCategory,
                               selectedIncomeSource: state.selectedIncomeSource,
                               onExpenseCategorySelected: (category) {
                                 context.read<FeatureaBloc>().add(
-                                      SelectExpenseCategory(category),
-                                    );
+                                  SelectExpenseCategory(category),
+                                );
                               },
                               onIncomeSourceSelected: (source) {
                                 context.read<FeatureaBloc>().add(
-                                      SelectIncomeSource(source),
-                                    );
+                                  SelectIncomeSource(source),
+                                );
                               },
                             ),
                             const SizedBox(height: 20),
@@ -140,8 +143,8 @@ class _FeatureaPageContent extends StatelessWidget {
                               value: state.note,
                               onChanged: (note) {
                                 context.read<FeatureaBloc>().add(
-                                      UpdateNote(note),
-                                    );
+                                  UpdateNote(note),
+                                );
                               },
                             ),
                           ],
@@ -202,74 +205,9 @@ class _FeatureaPageContent extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          // Back button
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_back,
-                color: AppColors.textMain,
-                size: 22,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Title
-          const Expanded(
-            child: Text(
-              'Catat Transaksi',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textMain,
-              ),
-            ),
-          ),
-
-          // Notification icon
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.textMain,
-                  size: 22,
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFF6B6B),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return AppBar(
+      title: const Text('Catat Transaksi'),
+      leading: Icon(Icons.arrow_back),
     );
   }
 }

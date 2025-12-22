@@ -98,49 +98,34 @@ class DashboardHeader extends StatelessWidget {
               ),
 
               // Notification bell
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(13),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: IconButton(
-                        onPressed: onNotificationTap,
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          Icons.notifications_outlined,
-                          color: Colors.grey.shade600,
-                          size: 22,
-                        ),
+              Stack(
+                children: [
+                  Center(
+                    child: IconButton(
+                      onPressed: onNotificationTap,
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.notifications_outlined,
+                        color: Colors.grey.shade600,
+                        size: 28,
                       ),
                     ),
-                    // Red dot indicator
-                    Positioned(
-                      right: 10,
-                      top: 10,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade500,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1),
-                        ),
+                  ),
+                  // Red dot indicator
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade500,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
