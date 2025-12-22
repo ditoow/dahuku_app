@@ -1,12 +1,11 @@
-import '../models/featurea_model.dart';
 import '../services/featurea_service.dart';
 
-class FeatureARepository {
-  final FeatureAService service;
+class FeatureaRepository {
+  final FeatureaService service;
 
-  FeatureARepository(this.service);
+  FeatureaRepository(this.service);
 
-  Future<List<FeatureATransaction>> getTransactions() {
-    return service.fetchTransactions();
+  Future<void> save() async {
+    await service.saveTransaction();
   }
 }

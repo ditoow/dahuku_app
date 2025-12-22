@@ -1,47 +1,38 @@
 import 'package:flutter/material.dart';
-import '../../data/models/featurea_model.dart';
 
-class FeatureATile extends StatelessWidget {
-  final FeatureATransaction data;
+class FeatureaTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
 
-  const FeatureATile({super.key, required this.data});
+  const FeatureaTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: selected ? Colors.purple.shade50 : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? Colors.purple : Colors.grey.shade300,
           ),
-        ],
-      ),
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 22,
-          backgroundColor: Colors.grey.shade100,
-          child: Text(data.icon, style: const TextStyle(fontSize: 18)),
         ),
-        title: Text(
-          data.title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          data.subtitle,
-          style: TextStyle(color: Colors.grey.shade600),
-        ),
-        trailing: Text(
-          '- Rp ${data.amount.abs()}',
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Column(
+          children: [
+            Icon(icon, color: Colors.black54),
+            const SizedBox(height: 8),
+            Text(label),
+          ],
         ),
       ),
     );

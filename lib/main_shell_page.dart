@@ -62,12 +62,7 @@ class _MainShellPageState extends State<MainShellPage> {
   }
 
   void _onRecordTap() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Catat transaksi baru'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    Navigator.pushNamed(context, '/catat-transaksi');
   }
 
   @override

@@ -1,13 +1,11 @@
-class FeatureATransaction {
-  final String title;
-  final String subtitle;
+class FeatureaModel {
   final int amount;
-  final String icon;
+  final bool isIncome;
+  final String category;
 
-  FeatureATransaction({
-    required this.title,
-    required this.subtitle,
+  FeatureaModel({
     required this.amount,
-    required this.icon,
+    required this.isIncome,
+    required this.category,
   });
 }
