@@ -1,4 +1,3 @@
-import 'package:dahuku_app/features/dashboard/presentation/dashboard_index_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,7 +55,7 @@ class DahuKuApp extends StatelessWidget {
             '/register': (context) => const RegisterIndexPage(),
             '/pin': (context) => const PinIndexPage(),
             '/questionnaire': (context) => const QuestionnaireIndexPage(),
-            '/dashboard': (context) => const DashboardIndexPage(),
+            '/dashboard': (context) => const MainShellPage(),
           },
         ),
       ),

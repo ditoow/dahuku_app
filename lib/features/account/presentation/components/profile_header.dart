@@ -34,55 +34,33 @@ class ProfileHeader extends StatelessWidget {
 
           // Content
           Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // 🔥 PENTING
-                children: [
-                  CircleAvatar(
-                    radius: 44,
-                    backgroundColor: const Color(0xFF304AFF),
-                    child: const CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 40),
-                    ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // 🔥 PENTING
+              children: [
+                CircleAvatar(
+                  radius: 44,
+                  backgroundColor: const Color(0xFF304AFF),
+                  child: const CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 40),
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    user.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  user.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Text(
-                    user.email,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Member Premium',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF304AFF),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                Text(
+                  user.email,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
           ),
         ],
@@ -90,4 +68,3 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 }
-

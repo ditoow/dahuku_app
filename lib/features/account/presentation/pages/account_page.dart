@@ -38,14 +38,7 @@ class _AccountPageState extends State<AccountPage> {
         centerTitle: true,
         title: const Text(
           'Profil Pengguna',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -53,9 +46,7 @@ class _AccountPageState extends State<AccountPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const SettingsPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
               );
             },
           ),
@@ -71,107 +62,100 @@ class _AccountPageState extends State<AccountPage> {
           return CustomScrollView(
             slivers: [
               /// ===== HEADER PROFIL (SCROLLABLE)
-              SliverToBoxAdapter(
-                child: ProfileHeader(user: state.user),
-              ),
+              SliverToBoxAdapter(child: ProfileHeader(user: state.user)),
 
               /// ===== CONTENT
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
                 sliver: SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      const _SectionTitle('AKUN & KEAMANAN'),
+                  delegate: SliverChildListDelegate([
+                    const _SectionTitle('AKUN & KEAMANAN'),
 
-                      AccountMenuCard(
-                        icon: Icons.person,
-                        title: 'Edit Profil',
-                        subtitle: 'Ubah nama dan info pribadi',
-                        iconColor: const Color(0xFF304AFF),
-                        iconBg: Colors.blue.shade50,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const EditProfilePage(),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 12),
-
-                      AccountMenuCard(
-                        icon: Icons.lock,
-                        title: 'Ganti PIN',
-                        subtitle: 'Keamanan akses aplikasi',
-                        iconColor: const Color(0xFF304AFF),
-                        iconBg: Colors.blue.shade50,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ChangePinPage(),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 28),
-                      const _SectionTitle('DATA & PENYIMPANAN'),
-
-                      AccountMenuCard(
-                        icon: Icons.cloud_upload,
-                        title: 'Backup Data',
-                        subtitle: 'Simpan data ke cloud',
-                        iconColor: const Color(0xFFA788FD),
-                        iconBg: Colors.purple.shade50,
-                        onTap: () {},
-                      ),
-                      const SizedBox(height: 12),
-
-                      AccountMenuCard(
-                        icon: Icons.cloud_download,
-                        title: 'Restore Data Lokal',
-                        subtitle: 'Pulihkan dari cadangan',
-                        iconColor: const Color(0xFFA788FD),
-                        iconBg: Colors.purple.shade50,
-                        onTap: () {},
-                      ),
-                      const SizedBox(height: 12),
-
-                      AccountMenuCard(
-                        icon: Icons.delete_forever,
-                        title: 'Reset Data',
-                        subtitle: 'Hapus semua transaksi',
-                        iconColor: Colors.red,
-                        iconBg: Colors.red.shade50,
-                        onTap: () {},
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      LogoutButton(
-                        onTap: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/login',
-                            (route) => false,
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-                      const Center(
-                        child: Text(
-                          'Versi Aplikasi 2.4.0',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
+                    AccountMenuCard(
+                      icon: Icons.person,
+                      title: 'Edit Profil',
+                      subtitle: 'Ubah nama dan info pribadi',
+                      iconColor: const Color(0xFF304AFF),
+                      iconBg: Colors.blue.shade50,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditProfilePage(),
                           ),
-                        ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    AccountMenuCard(
+                      icon: Icons.lock,
+                      title: 'Ganti PIN',
+                      subtitle: 'Keamanan akses aplikasi',
+                      iconColor: const Color(0xFF304AFF),
+                      iconBg: Colors.blue.shade50,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ChangePinPage(),
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+                    const _SectionTitle('DATA & PENYIMPANAN'),
+
+                    AccountMenuCard(
+                      icon: Icons.cloud_upload,
+                      title: 'Backup Data',
+                      subtitle: 'Simpan data ke cloud',
+                      iconColor: const Color(0xFFA788FD),
+                      iconBg: Colors.purple.shade50,
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+
+                    AccountMenuCard(
+                      icon: Icons.cloud_download,
+                      title: 'Restore Data Lokal',
+                      subtitle: 'Pulihkan dari cadangan',
+                      iconColor: const Color(0xFFA788FD),
+                      iconBg: Colors.purple.shade50,
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+
+                    AccountMenuCard(
+                      icon: Icons.delete_forever,
+                      title: 'Reset Data',
+                      subtitle: 'Hapus semua transaksi',
+                      iconColor: Colors.red,
+                      iconBg: Colors.red.shade50,
+                      onTap: () {},
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    LogoutButton(
+                      onTap: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/login',
+                          (route) => false,
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Center(
+                      child: Text(
+                        'Versi Aplikasi 2.4.0',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
                       ),
-                    ],
-                  ),
+                    ),
+                  ]),
                 ),
               ),
             ],

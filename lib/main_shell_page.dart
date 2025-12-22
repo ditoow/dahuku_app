@@ -1,3 +1,4 @@
+import 'package:dahuku_app/features/account/presentation/pages/account_page.dart';
 import 'package:flutter/material.dart';
 import 'core/constants/app_colors.dart';
 import 'core/widgets/bottom_navigation_bar.dart';
@@ -19,11 +20,11 @@ class _MainShellPageState extends State<MainShellPage> {
   late int _currentIndex;
   late PageController _pageController;
 
-  // Map nav indices to page indices (since not all tabs have pages yet)
+  // Map nav indices to page indices
   // Nav: 0=Beranda, 1=Analisis, 2=Edukasi, 3=Akun
-  // Page: 0=Beranda, 1=Edukasi
-  int _navToPageIndex(int navIndex) => navIndex == 2 ? 1 : 0;
-  int _pageToNavIndex(int pageIndex) => pageIndex == 1 ? 2 : 0;
+  // Page: 0=Beranda, 1=Analisis, 2=Edukasi, 3=Akun
+  int _navToPageIndex(int navIndex) => navIndex;
+  int _pageToNavIndex(int pageIndex) => pageIndex;
 
   @override
   void initState() {
@@ -42,18 +43,6 @@ class _MainShellPageState extends State<MainShellPage> {
 
   void _onNavTap(int index) {
     if (index == _currentIndex) return;
-
-    // For tabs that are not yet implemented, show snackbar
-    if (index == 1 || index == 3) {
-      final labels = ['Beranda', 'Analisis', 'Edukasi', 'Akun'];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Halaman ${labels[index]} coming soon'),
-          duration: const Duration(seconds: 1),
-        ),
-      );
-      return;
-    }
 
     setState(() => _currentIndex = index);
 
@@ -97,8 +86,12 @@ class _MainShellPageState extends State<MainShellPage> {
             children: const [
               // Page 0: Dashboard (Beranda)
               DashboardContent(),
-              // Page 1: Education (Edukasi)
+              // Page 1: Analisis
+              _AnalisisPlaceholder(),
+              // Page 2: Education (Edukasi)
               EducationContent(),
+              // Page 3: Account (Akun)
+              AccountPage(),
             ],
           ),
 
@@ -114,6 +107,23 @@ class _MainShellPageState extends State<MainShellPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Placeholder widget for Analisis page
+class _AnalisisPlaceholder extends StatelessWidget {
+  const _AnalisisPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Text(
+          'Halaman Analisis',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
