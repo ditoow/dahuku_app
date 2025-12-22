@@ -17,8 +17,66 @@ class DashboardIndexPage extends StatefulWidget {
 class _DashboardIndexPageState extends State<DashboardIndexPage> {
   int _currentNavIndex = 0;
 
-  // Sample data
-  final List<WalletData> _wallets = const [
+  void _onNavTap(int index) {
+    if (index == _currentNavIndex) return;
+
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Halaman Analisis coming soon')),
+        );
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/education');
+        break;
+      case 3:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Halaman Akun coming soon')),
+        );
+        break;
+    }
+  }
+
+  void _onRecordTap() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Catat transaksi baru'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bgPage,
+      extendBody: true,
+      body: Stack(
+        children: [
+          const DashboardContent(),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: DahuKuBottomNavBar(
+              currentIndex: _currentNavIndex,
+              onTap: _onNavTap,
+              onFabPressed: _onRecordTap,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Dashboard content widget - can be used standalone in MainShellPage
+class DashboardContent extends StatelessWidget {
+  const DashboardContent({super.key});
+
+  static const List<WalletData> _wallets = [
     WalletData(
       type: WalletType.belanja,
       name: 'Belanja',
@@ -33,7 +91,7 @@ class _DashboardIndexPageState extends State<DashboardIndexPage> {
     ),
   ];
 
-  final List<TransactionData> _transactions = [
+  static final List<TransactionData> _transactions = [
     TransactionData(
       id: '1',
       title: 'Makan Siang',
@@ -69,138 +127,88 @@ class _DashboardIndexPageState extends State<DashboardIndexPage> {
   double get _totalBalance =>
       _wallets.fold(0, (sum, wallet) => sum + wallet.balance);
 
-  void _onNavTap(int index) {
-    setState(() => _currentNavIndex = index);
-  }
-
-  void _onRecordTap() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Catat transaksi baru'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgPage,
-      extendBody: true,
-      body: Stack(
-        children: [
-          // Simple gradient background at top
-          Positioned(
-            top: -50,
-            left: 0,
-            right: -80,
-            child: Container(
-              height: 350,
-              decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment(0.5, -0.5),
-                  radius: 1.2,
-                  colors: [
-                    Color.fromARGB(106, 211, 100, 255),
-                    Color(0xFFF4F1FF),
-                    Color.fromARGB(31, 255, 255, 255),
-                  ],
-                  stops: [0.0, 0.5, 0.7],
-                ),
+    return Stack(
+      children: [
+        // Gradient backgrounds
+        Positioned(
+          top: -50,
+          left: 0,
+          right: -80,
+          child: Container(
+            height: 350,
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(0.5, -0.5),
+                radius: 1.2,
+                colors: [
+                  Color.fromARGB(106, 211, 100, 255),
+                  Color(0xFFF4F1FF),
+                  Color.fromARGB(31, 255, 255, 255),
+                ],
+                stops: [0.0, 0.5, 0.7],
               ),
             ),
           ),
-          // Purple accent at top-right
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.topRight,
-                  radius: 1.0,
-                  colors: [
-                    const Color(0xFFD4C4FC).withOpacity(0.6),
-                    const Color.fromARGB(0, 255, 255, 255),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Main scrollable content
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 120),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
-
-                  // Header (avatar, greeting, notification)
-                  const DashboardHeader(userName: 'Alexandria'),
-                  const SizedBox(height: 24),
-
-                  // Total Balance (centered)
-                  TotalBalanceSection(
-                    totalBalance: _totalBalance,
-                    percentChange: 2.5,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Dompetku section (wallet cards)
-                  WalletCardsSection(
-                    wallets: _wallets,
-                    onWalletTap: (wallet) {
-                      // TODO: Navigate to wallet detail
-                    },
-                    onViewAll: () {
-                      // TODO: Navigate to all wallets
-                    },
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Ringkasan Cepat section
-                  QuickSummarySection(
-                    weeklyExpense: 450000,
-                    remainingBudget: 1200000,
-                    budgetProgress: 0.65,
-                    onLearnTap: () {
-                      // TODO: Navigate to education
-                    },
-                    onHistoryTap: () {
-                      // TODO: Navigate to history
-                    },
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Transaksi Terakhir section
-                  RecentTransactionsSection(
-                    transactions: _transactions,
-                    onViewAll: () {
-                      // TODO: Navigate to all transactions
-                    },
-                  ),
-                  const SizedBox(height: 24),
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.topRight,
+                radius: 1.0,
+                colors: [
+                  const Color(0xFFD4C4FC).withAlpha(153),
+                  const Color.fromARGB(0, 255, 255, 255),
                 ],
               ),
             ),
           ),
+        ),
 
-          // Floating Bottom Navigation Bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: DahuKuBottomNavBar(
-              currentIndex: _currentNavIndex,
-              onTap: _onNavTap,
-              onFabPressed: _onRecordTap,
+        // Main scrollable content
+        SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 120),
+          child: SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                const DashboardHeader(userName: 'Alexandria'),
+                const SizedBox(height: 42),
+                TotalBalanceSection(
+                  totalBalance: _totalBalance,
+                  percentChange: 2.5,
+                ),
+                const SizedBox(height: 42),
+                WalletCardsSection(
+                  wallets: _wallets,
+                  onWalletTap: (wallet) {},
+                  onViewAll: () {},
+                ),
+                const SizedBox(height: 12),
+                QuickSummarySection(
+                  weeklyExpense: 450000,
+                  remainingBudget: 1200000,
+                  budgetProgress: 0.65,
+                  onLearnTap: () {},
+                  onHistoryTap: () {},
+                ),
+                const SizedBox(height: 32),
+                RecentTransactionsSection(
+                  transactions: _transactions,
+                  onViewAll: () {},
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

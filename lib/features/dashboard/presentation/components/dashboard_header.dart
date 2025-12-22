@@ -171,7 +171,7 @@ class TotalBalanceSection extends StatelessWidget {
             'Total Saldo Kamu',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade500,
+              color: Colors.grey.shade800,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -180,7 +180,7 @@ class TotalBalanceSection extends StatelessWidget {
             _formatCurrency(totalBalance),
             style: const TextStyle(
               fontSize: 36,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.bold,
               color: AppColors.textMain,
               letterSpacing: -1,
             ),
