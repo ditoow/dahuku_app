@@ -38,6 +38,9 @@ dependencies:
   # Google Fonts for custom typography
   google_fonts: ^6.1.0
 
+  # Date formatting
+  intl: ^0.19.0
+
   # State Management - BLoC
   flutter_bloc: ^9.1.1
   bloc: ^9.0.0

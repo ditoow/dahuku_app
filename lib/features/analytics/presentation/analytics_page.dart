@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class AnalyticsPage extends StatefulWidget {
   const AnalyticsPage({super.key});
@@ -14,7 +15,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     {'name': 'MacBook Pro M3', 'progress': 0.75, 'current': 18000000, 'target': 24000000}
   ];
   List<Map<String, dynamic>> debts = [
-    {'name': 'PayLater Belanja', 'amount': 750000, 'dueDate': '25 Nov', 'interest': 2.5}
+    {'name': 'PayLater Belanja', 'amount': 750000, 'originalAmount': 750000, 'dueDate': '25 Nov', 'interest': 2.5}
   ];
 
   @override
@@ -260,21 +261,32 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                       ),
                                     ],
                                   ),
-                                  ElevatedButton(
-                                    onPressed: _showAddSavingsDialog,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF304AFF).withOpacity(0.1),
-                                      foregroundColor: const Color(0xFF304AFF),
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
+                                  Row(
+                                    children: [
+                                      TextButton(
+                                        onPressed: _showAddSavingsDialog,
+                                        child: Text(
+                                          '+ Buat Baru',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF304AFF),
+                                          ),
+                                        ),
                                       ),
-                                      textStyle: GoogleFonts.poppins(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
+                                      const SizedBox(width: 8),
+                                      TextButton(
+                                        onPressed: _showDepositDialog,
+                                        child: Text(
+                                          'Setor',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF304AFF),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    child: const Text('+ Buat Baru'),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -343,58 +355,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                     if (savingsGoals.length > 1) const SizedBox(height: 16),
                                   ],
                                 );
-                              }).toList(),
-                              const SizedBox(height: 16),
-                              const Divider(),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF5F5F5),
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                        child: const Icon(
-                                          Icons.history,
-                                          color: const Color(0xFFBDBDBD),
-                                          size: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Terakhir setor',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 10,
-                                              color: const Color(0xFFBDBDBD),
-                                            ),
-                                          ),
-                                          Text(
-                                            'Rp 500.000 (Kemarin)',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Switch(
-                                    value: true,
-                                    onChanged: (value) {},
-                                    activeColor: const Color(0xFF00BFA6),
-                                  ),
-                                ],
-                              ),
+                              }),
                             ],
                           ),
                         ),
@@ -444,16 +405,32 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                       ),
                                     ],
                                   ),
-                                  TextButton(
-                                    onPressed: _showAddDebtDialog,
-                                    child: Text(
-                                      '+ Hutang',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF304AFF),
+                                  Row(
+                                    children: [
+                                      TextButton(
+                                        onPressed: _showAddDebtDialog,
+                                        child: Text(
+                                          '+ Hutang',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF304AFF),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      const SizedBox(width: 8),
+                                      TextButton(
+                                        onPressed: _showPayDebtDialog,
+                                        child: Text(
+                                          'Setor',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF304AFF),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -527,7 +504,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                       ),
                                       const SizedBox(height: 8),
                                       LinearProgressIndicator(
-                                        value: 0.3, // Placeholder, bisa dihitung berdasarkan pembayaran
+                                        value: debt['originalAmount'] > 0 ? (debt['originalAmount'] - debt['amount']) / debt['originalAmount'] : 0.0,
                                         backgroundColor: const Color(0xFFEEEEEE),
                                         valueColor: const AlwaysStoppedAnimation<Color>(
                                           Color(0xFFFFB946),
@@ -536,7 +513,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                     ],
                                   ),
                                 );
-                              }).toList(),
+                              }),
                               const SizedBox(height: 12),
                               Container(
                                 padding: const EdgeInsets.all(12),
@@ -614,7 +591,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                                 children: [
                                   const Icon(
                                     Icons.search,
-                                    color: const Color(0xFFBDBDBD),
+                                    color: Color(0xFFBDBDBD),
                                     size: 20,
                                   ),
                                   const SizedBox(width: 12),
@@ -948,9 +925,85 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
+  void _showDepositDialog() {
+    String? selectedGoal = savingsGoals.isNotEmpty ? savingsGoals.first['name'] : null;
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Setor Tabungan',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: selectedGoal,
+                decoration: InputDecoration(
+                  labelText: 'Pilih Target Tabungan',
+                  border: OutlineInputBorder(),
+                ),
+                items: savingsGoals.map((goal) {
+                  return DropdownMenuItem<String>(
+                    value: goal['name'],
+                    child: Text(goal['name'], style: GoogleFonts.poppins()),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  selectedGoal = value;
+                },
+                style: GoogleFonts.poppins(),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: amountController,
+                decoration: InputDecoration(
+                  labelText: 'Nominal Setor (Rp)',
+                  hintText: 'Contoh: 500000',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                style: GoogleFonts.poppins(),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Batal', style: GoogleFonts.poppins()),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final String amountText = amountController.text.trim();
+                if (selectedGoal != null && amountText.isNotEmpty) {
+                  final int amount = int.tryParse(amountText) ?? 0;
+                  if (amount > 0) {
+                    setState(() {
+                      final goal = savingsGoals.firstWhere((g) => g['name'] == selectedGoal);
+                      goal['current'] += amount;
+                      goal['progress'] = goal['current'] / goal['target'];
+                      if (goal['progress'] > 1.0) goal['progress'] = 1.0;
+                    });
+                    Navigator.of(context).pop();
+                  }
+                }
+              },
+              child: Text('Setor', style: GoogleFonts.poppins()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showAddDebtDialog() {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController amountController = TextEditingController();
+    final TextEditingController interestController = TextEditingController();
+    final TextEditingController dueDateController = TextEditingController();
 
     showDialog(
       context: context,
@@ -983,6 +1036,40 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                 keyboardType: TextInputType.number,
                 style: GoogleFonts.poppins(),
               ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: interestController,
+                decoration: InputDecoration(
+                  labelText: 'Bunga Hutang (% per bulan)',
+                  hintText: 'Contoh: 2.5',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                style: GoogleFonts.poppins(),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: dueDateController,
+                decoration: InputDecoration(
+                  labelText: 'Tanggal Jatuh Tempo',
+                  hintText: 'Pilih tanggal',
+                  border: OutlineInputBorder(),
+                  suffixIcon: const Icon(Icons.calendar_today),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    dueDateController.text = DateFormat('dd MMM').format(pickedDate);
+                  }
+                },
+                style: GoogleFonts.poppins(),
+              ),
             ],
           ),
           actions: [
@@ -994,15 +1081,19 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
               onPressed: () {
                 final String name = nameController.text.trim();
                 final String amountText = amountController.text.trim();
-                if (name.isNotEmpty && amountText.isNotEmpty) {
+                final String interestText = interestController.text.trim();
+                final String dueDateText = dueDateController.text.trim();
+                if (name.isNotEmpty && amountText.isNotEmpty && interestText.isNotEmpty && dueDateText.isNotEmpty) {
                   final int amount = int.tryParse(amountText) ?? 0;
+                  final double interest = double.tryParse(interestText) ?? 0.0;
                   if (amount > 0) {
                     setState(() {
                       debts.add({
                         'name': name,
                         'amount': amount,
-                        'dueDate': 'Belum ditentukan',
-                        'interest': 0.0,
+                        'originalAmount': amount,
+                        'dueDate': dueDateText,
+                        'interest': interest,
                       });
                     });
                     Navigator.of(context).pop();
@@ -1016,4 +1107,78 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
       },
     );
   }
+
+  void _showPayDebtDialog() {
+    String? selectedDebt = debts.isNotEmpty ? debts.first['name'] : null;
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Bayar Hutang',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: selectedDebt,
+                decoration: InputDecoration(
+                  labelText: 'Pilih Hutang',
+                  border: OutlineInputBorder(),
+                ),
+                items: debts.map((debt) {
+                  return DropdownMenuItem<String>(
+                    value: debt['name'],
+                    child: Text(debt['name'], style: GoogleFonts.poppins()),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  selectedDebt = value;
+                },
+                style: GoogleFonts.poppins(),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: amountController,
+                decoration: InputDecoration(
+                  labelText: 'Nominal Bayar (Rp)',
+                  hintText: 'Contoh: 500000',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                style: GoogleFonts.poppins(),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Batal', style: GoogleFonts.poppins()),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final String amountText = amountController.text.trim();
+                if (selectedDebt != null && amountText.isNotEmpty) {
+                  final int amount = int.tryParse(amountText) ?? 0;
+                  if (amount > 0) {
+                    setState(() {
+                      final debt = debts.firstWhere((d) => d['name'] == selectedDebt);
+                      debt['amount'] -= amount;
+                      if (debt['amount'] < 0) debt['amount'] = 0;
+                    });
+                    Navigator.of(context).pop();
+                  }
+                }
+              },
+              child: Text('Bayar', style: GoogleFonts.poppins()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

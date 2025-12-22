@@ -59,7 +59,7 @@ class DashboardHeader extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 child: ClipOval(
                   child: avatarUrl != null
-                      ? Image.network(avatarUrl!, fit: BoxFit.cover)
+                      ? Image.network(avatarUrl, fit: BoxFit.cover)
                       : Container(
                           color: Colors.grey.shade200,
                           child: Icon(
@@ -169,7 +169,7 @@ class TotalBalanceSection extends StatelessWidget {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, state) {
         final totalBalance = state.summary.totalBalance;
-        final double? percentChange = 0; // Placeholder for now
+        final double percentChange = 0; // Placeholder for now
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
