@@ -222,7 +222,6 @@ class DompetPage extends StatelessWidget {
         const SizedBox(height: 16),
         Row(
           children: [
-            // Pindahkan Uang button
             Expanded(
               child: _ActionButton(
                 icon: Icons.swap_horiz,
@@ -230,18 +229,6 @@ class DompetPage extends StatelessWidget {
                 color: AppColors.primary,
                 onTap: () {
                   Navigator.pushNamed(context, '/pindah-uang');
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Catat Transaksi button
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.add,
-                label: 'Catat Transaksi',
-                color: AppColors.accentPurple,
-                onTap: () {
-                  Navigator.pushNamed(context, '/catat-transaksi');
                 },
               ),
             ),
