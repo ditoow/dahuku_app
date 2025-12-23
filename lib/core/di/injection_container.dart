@@ -36,6 +36,9 @@ import '../../features/boardingfeature/questionnaire/bloc/questionnaire_bloc.dar
 
 // Feature: Analytics
 import '../../features/analytics/bloc/analytics_bloc.dart';
+import '../../features/analytics/bloc/savings_debt_bloc.dart';
+import '../../features/analytics/data/services/savings_debt_service.dart';
+import '../../features/analytics/data/repositories/savings_debt_repository.dart';
 
 // Feature: Education (Comics)
 import '../../features/education/data/services/comic_service.dart';
@@ -120,6 +123,11 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<AnalyticsBloc>(
     () => AnalyticsBloc(transactionRepository: sl(), walletRepository: sl()),
   );
+  sl.registerLazySingleton<SavingsDebtService>(() => SavingsDebtService());
+  sl.registerLazySingleton<SavingsDebtRepository>(
+    () => SavingsDebtRepository(sl()),
+  );
+  sl.registerFactory<SavingsDebtBloc>(() => SavingsDebtBloc(sl()));
 
   // ==================
   // FEATURE: EDUCATION (COMICS)

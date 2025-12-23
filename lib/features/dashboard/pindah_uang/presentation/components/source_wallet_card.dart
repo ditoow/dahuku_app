@@ -5,37 +5,63 @@ import '../../../../../core/constants/app_colors.dart';
 class SourceWalletCard extends StatelessWidget {
   final String walletName;
   final double balance;
+  final String? walletType;
 
   const SourceWalletCard({
     super.key,
     required this.walletName,
     required this.balance,
+    this.walletType,
   });
 
   String _formatCurrency(double amount) {
     final formatted = amount
         .toStringAsFixed(0)
         .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          RegExp(r'(\\d{1,3})(?=(\\d{3})+(?!\\d))'),
           (Match m) => '${m[1]}.',
         );
     return 'Rp $formatted';
   }
 
+  IconData _getWalletIcon() {
+    switch (walletType) {
+      case 'tabungan':
+        return Icons.savings_outlined;
+      case 'darurat':
+        return Icons.security_outlined;
+      case 'belanja':
+      default:
+        return Icons.account_balance_wallet_outlined;
+    }
+  }
+
+  Color _getWalletColor() {
+    switch (walletType) {
+      case 'tabungan':
+        return AppColors.walletSaving;
+      case 'darurat':
+        return AppColors.walletEmergency;
+      case 'belanja':
+      default:
+        return AppColors.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final walletColor = _getWalletColor();
+    final walletIcon = _getWalletIcon();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: walletColor.withAlpha(51), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.08),
+            color: walletColor.withAlpha(20),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -48,14 +74,10 @@ class SourceWalletCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: walletColor.withAlpha(26),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
-              Icons.account_balance_wallet_outlined,
-              color: AppColors.primary,
-              size: 24,
-            ),
+            child: Icon(walletIcon, color: walletColor, size: 24),
           ),
           const SizedBox(width: 16),
 

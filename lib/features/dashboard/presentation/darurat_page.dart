@@ -259,6 +259,7 @@ class DaruratPage extends StatelessWidget {
                   final result = await Navigator.pushNamed(
                     context,
                     '/pindah-uang',
+                    arguments: {'sourceWalletId': wallet.id},
                   );
                   if (result == true && context.mounted) {
                     context.read<DashboardBloc>().add(

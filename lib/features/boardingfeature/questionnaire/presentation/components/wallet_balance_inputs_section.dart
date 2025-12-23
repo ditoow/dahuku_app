@@ -5,7 +5,9 @@ import '../../../../../../core/constants/app_text_styles.dart';
 
 /// Wallet balance inputs section - manages its own controllers
 class WalletBalanceInputsSection extends StatefulWidget {
-  const WalletBalanceInputsSection({super.key});
+  final VoidCallback? onChanged;
+
+  const WalletBalanceInputsSection({super.key, this.onChanged});
 
   @override
   State<WalletBalanceInputsSection> createState() =>
@@ -43,10 +45,10 @@ class WalletBalanceInputsSectionState
       ) ??
       0;
 
-  /// Check if at least one wallet has value
+  /// Check if all three wallets have value
   bool get hasValue =>
-      _belanjController.text.isNotEmpty ||
-      _tabunganController.text.isNotEmpty ||
+      _belanjController.text.isNotEmpty &&
+      _tabunganController.text.isNotEmpty &&
       _daruratController.text.isNotEmpty;
 
   @override
@@ -138,7 +140,10 @@ class WalletBalanceInputsSectionState
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        onChanged: (_) => setState(() {}),
+                        onChanged: (_) {
+                          setState(() {});
+                          widget.onChanged?.call();
+                        },
                         style: AppTextStyles.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

@@ -24,13 +24,21 @@ class PindahUangBloc extends Bloc<PindahUangEvent, PindahUangState> {
       final response = await _repository.getAllDompet();
       final wallets = response.map((w) => WalletInfo.fromJson(w)).toList();
 
-      // Default source = dompet belanja (primary)
+      // Select source wallet based on initialSourceWalletId or default to belanja
       WalletInfo? sourceWallet;
       if (wallets.isNotEmpty) {
-        sourceWallet = wallets.firstWhere(
-          (w) => w.tipe == 'belanja',
-          orElse: () => wallets.first,
-        );
+        if (event.initialSourceWalletId != null) {
+          sourceWallet = wallets.firstWhere(
+            (w) => w.id == event.initialSourceWalletId,
+            orElse: () => wallets.first,
+          );
+        } else {
+          // Default source = dompet belanja (primary)
+          sourceWallet = wallets.firstWhere(
+            (w) => w.tipe == 'belanja',
+            orElse: () => wallets.first,
+          );
+        }
       }
 
       emit(

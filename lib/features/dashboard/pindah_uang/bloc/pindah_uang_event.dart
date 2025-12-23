@@ -10,7 +10,12 @@ abstract class PindahUangEvent extends Equatable {
 
 /// Load wallets from database
 class LoadWallets extends PindahUangEvent {
-  const LoadWallets();
+  final String? initialSourceWalletId;
+
+  const LoadWallets({this.initialSourceWalletId});
+
+  @override
+  List<Object?> get props => [initialSourceWalletId];
 }
 
 /// Select target wallet for transfer

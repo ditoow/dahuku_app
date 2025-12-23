@@ -158,6 +158,7 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
                               if (currentQuestion.isWalletInput)
                                 WalletBalanceInputsSection(
                                   key: _walletInputsKey,
+                                  onChanged: () => setState(() {}),
                                 )
                               else if (currentQuestion.isDebtInput)
                                 DebtInputSection(key: _debtInputsKey)

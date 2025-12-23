@@ -19,8 +19,15 @@ class PindahUangPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get sourceWalletId from route arguments if provided
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final sourceWalletId = args?['sourceWalletId'] as String?;
+
     return BlocProvider(
-      create: (_) => GetIt.I<PindahUangBloc>()..add(const LoadWallets()),
+      create: (_) =>
+          GetIt.I<PindahUangBloc>()
+            ..add(LoadWallets(initialSourceWalletId: sourceWalletId)),
       child: const _PindahUangPageContent(),
     );
   }
@@ -102,6 +109,7 @@ class _PindahUangPageContent extends StatelessWidget {
                               walletName:
                                   state.sourceWallet?.nama ?? 'Dompet Belanja',
                               balance: state.sourceWalletBalance,
+                              walletType: state.sourceWallet?.tipe,
                             ),
                             const SizedBox(height: 24),
 

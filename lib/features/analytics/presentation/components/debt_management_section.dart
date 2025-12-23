@@ -1,227 +1,324 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../bloc/savings_debt_bloc.dart';
+import '../../bloc/savings_debt_event.dart';
+import '../../bloc/savings_debt_state.dart';
+import '../../data/models/savings_debt_model.dart';
 
 /// Debt management section - manages debts
-/// Uses internal state for now, can be connected to BLoC later
-class DebtManagementSection extends StatefulWidget {
+/// Integrated with SavingsDebtBloc
+class DebtManagementSection extends StatelessWidget {
   const DebtManagementSection({super.key});
 
   @override
-  State<DebtManagementSection> createState() => _DebtManagementSectionState();
-}
-
-class _DebtManagementSectionState extends State<DebtManagementSection> {
-  List<Map<String, dynamic>> debts = [
-    {
-      'name': 'PayLater Belanja',
-      'amount': 750000,
-      'originalAmount': 750000,
-      'dueDate': '25 Nov',
-      'interest': 2.5,
-    },
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(20),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        border: Border.all(color: const Color(0xFFFFB946).withAlpha(77)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFE0B2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.credit_card_off,
-                  color: Colors.orange,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Manajemen Hutang',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: _showAddDebtDialog,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  '+ Hutang',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF304AFF),
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: _showPayDebtDialog,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  'Bayar',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF304AFF),
-                  ),
-                ),
+    return BlocBuilder<SavingsDebtBloc, SavingsDebtState>(
+      builder: (context, state) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(20),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
               ),
             ],
+            border: Border.all(color: const Color(0xFFF5F5F5)),
           ),
-          const SizedBox(height: 16),
-          ...debts.map((debt) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFF5F5F5)),
-              ),
-              child: Column(
+          child: Column(
+            children: [
+              // Header
+              Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            debt['name'],
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_today,
-                                size: 12,
-                                color: Colors.red,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Jatuh tempo: ${debt['dueDate']}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10,
-                                  color: const Color(0xFFF44336),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Rp ${_formatNumber(debt['amount'])}',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          Text(
-                            '+ Bunga ${debt['interest']}%',
-                            style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              color: const Color(0xFF9E9E9E),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFE0B2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.orange,
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  LinearProgressIndicator(
-                    value: debt['originalAmount'] > 0
-                        ? (debt['originalAmount'] - debt['amount']) /
-                              debt['originalAmount']
-                        : 0.0,
-                    backgroundColor: const Color(0xFFEEEEEE),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFFFFB946),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Manajemen Hutang',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => _showAddDebtDialog(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      '+ Hutang',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF304AFF),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: state.debts.isNotEmpty
+                        ? () => _showPaymentDialog(context, state.debts.first)
+                        : null,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      'Bayar',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF304AFF),
+                      ),
                     ),
                   ),
                 ],
               ),
-            );
-          }),
-          const SizedBox(height: 12),
-          // Tips box
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF9C4),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFFFF59D)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.school, color: Color(0xFFFFD600), size: 20),
-                const SizedBox(width: 12),
-                Expanded(
+              const SizedBox(height: 16),
+
+              // Loading state
+              if (state.isLoading)
+                const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                )
+              // Empty state
+              else if (state.debts.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(20),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Tips Bebas Hutang',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFFF8F00),
-                        ),
+                      Icon(
+                        Icons.check_circle_outline,
+                        size: 48,
+                        color: Colors.green.shade300,
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 12),
                       Text(
-                        'Lunasi hutang dengan bunga tertinggi lebih dulu untuk menghemat pengeluaran jangka panjang.',
+                        'Tidak ada hutang 🎉',
                         style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          color: const Color(0xFFFFC107),
-                          height: 1.3,
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
                         ),
                       ),
                     ],
                   ),
+                )
+              // List of debts
+              else
+                Column(
+                  children: state.debts
+                      .map((debt) => _DebtCard(debt: debt))
+                      .toList(),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAddDebtDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final amountController = TextEditingController();
+    final interestController = TextEditingController(text: '0');
+    String selectedType = 'keluarga';
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            'Tambah Hutang',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Nama Hutang',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: selectedType,
+                  decoration: InputDecoration(
+                    labelText: 'Jenis Hutang',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'keluarga',
+                      child: Text('Keluarga'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'koperasi',
+                      child: Text('Koperasi'),
+                    ),
+                    DropdownMenuItem(value: 'bank', child: Text('Bank')),
+                    DropdownMenuItem(
+                      value: 'paylater',
+                      child: Text('PayLater'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'rentenir',
+                      child: Text('Rentenir'),
+                    ),
+                  ],
+                  onChanged: (value) =>
+                      setDialogState(() => selectedType = value!),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    labelText: 'Jumlah Hutang (Rp)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: interestController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Bunga (%)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ],
             ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                final amount = double.tryParse(amountController.text) ?? 0;
+                final interest = double.tryParse(interestController.text) ?? 0;
+                if (name.isNotEmpty && amount > 0) {
+                  context.read<SavingsDebtBloc>().add(
+                    CreateDebt(
+                      nama: name,
+                      jenis: selectedType,
+                      jumlah: amount,
+                      bungaPersen: interest,
+                    ),
+                  );
+                  Navigator.pop(dialogContext);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Simpan'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPaymentDialog(BuildContext context, DebtModel debt) {
+    final amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Bayar ${debt.nama}',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Sisa: Rp ${_formatNumber(debt.sisaHutang.toInt())}',
+              style: GoogleFonts.poppins(color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: 'Jumlah Bayar (Rp)',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final amount = double.tryParse(amountController.text) ?? 0;
+              if (amount > 0) {
+                context.read<SavingsDebtBloc>().add(
+                  PayDebt(hutangId: debt.id, jumlah: amount),
+                );
+                Navigator.pop(dialogContext);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Bayar'),
           ),
         ],
       ),
@@ -234,197 +331,98 @@ class _DebtManagementSectionState extends State<DebtManagementSection> {
       (Match m) => '${m[1]}.',
     );
   }
+}
 
-  void _showAddDebtDialog() {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController amountController = TextEditingController();
-    final TextEditingController interestController = TextEditingController();
-    final TextEditingController dueDateController = TextEditingController();
+/// Card untuk menampilkan satu hutang
+class _DebtCard extends StatelessWidget {
+  final DebtModel debt;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Tambah Hutang',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Hutang',
-                    hintText: 'Contoh: PayLater Belanja',
-                    border: OutlineInputBorder(),
-                  ),
-                  style: GoogleFonts.poppins(),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Jumlah Hutang (Rp)',
-                    hintText: 'Contoh: 750000',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  style: GoogleFonts.poppins(),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: interestController,
-                  decoration: const InputDecoration(
-                    labelText: 'Bunga Hutang (% per bulan)',
-                    hintText: 'Contoh: 2.5',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  style: GoogleFonts.poppins(),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: dueDateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tanggal Jatuh Tempo',
-                    hintText: 'Pilih tanggal',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_today),
-                  ),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      dueDateController.text = DateFormat(
-                        'dd MMM',
-                      ).format(pickedDate);
-                    }
-                  },
-                  style: GoogleFonts.poppins(),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Batal', style: GoogleFonts.poppins()),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final String name = nameController.text.trim();
-                final String amountText = amountController.text.trim();
-                final String interestText = interestController.text.trim();
-                final String dueDateText = dueDateController.text.trim();
-                if (name.isNotEmpty &&
-                    amountText.isNotEmpty &&
-                    interestText.isNotEmpty &&
-                    dueDateText.isNotEmpty) {
-                  final int amount = int.tryParse(amountText) ?? 0;
-                  final double interest = double.tryParse(interestText) ?? 0.0;
-                  if (amount > 0) {
-                    setState(() {
-                      debts.add({
-                        'name': name,
-                        'amount': amount,
-                        'originalAmount': amount,
-                        'dueDate': dueDateText,
-                        'interest': interest,
-                      });
-                    });
-                    Navigator.of(context).pop();
-                  }
-                }
-              },
-              child: Text('Tambah', style: GoogleFonts.poppins()),
-            ),
-          ],
-        );
-      },
+  const _DebtCard({required this.debt});
+
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
     );
   }
 
-  void _showPayDebtDialog() {
-    String? selectedDebt = debts.isNotEmpty ? debts.first['name'] : null;
-    final TextEditingController amountController = TextEditingController();
+  String _formatDate(DateTime? date) {
+    if (date == null) return '-';
+    return DateFormat('dd MMM yyyy').format(date);
+  }
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Bayar Hutang',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title and amount
+          Row(
             children: [
-              DropdownButtonFormField<String>(
-                value: selectedDebt,
-                decoration: const InputDecoration(
-                  labelText: 'Pilih Hutang',
-                  border: OutlineInputBorder(),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      debt.nama,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Jatuh tempo: ${_formatDate(debt.tanggalJatuhTempo)}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                items: debts.map((debt) {
-                  return DropdownMenuItem<String>(
-                    value: debt['name'],
-                    child: Text(debt['name'], style: GoogleFonts.poppins()),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  selectedDebt = value;
-                },
-                style: GoogleFonts.poppins(color: Colors.black87),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: amountController,
-                decoration: const InputDecoration(
-                  labelText: 'Nominal Bayar (Rp)',
-                  hintText: 'Contoh: 500000',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                style: GoogleFonts.poppins(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Rp ${_formatNumber(debt.sisaHutang.toInt())}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red.shade700,
+                    ),
+                  ),
+                  if (debt.bungaPersen > 0)
+                    Text(
+                      '+ Bunga ${debt.bungaPersen}%',
+                      style: GoogleFonts.poppins(
+                        fontSize: 10,
+                        color: Colors.orange,
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Batal', style: GoogleFonts.poppins()),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final String amountText = amountController.text.trim();
-                if (selectedDebt != null && amountText.isNotEmpty) {
-                  final int amount = int.tryParse(amountText) ?? 0;
-                  if (amount > 0) {
-                    setState(() {
-                      final debt = debts.firstWhere(
-                        (d) => d['name'] == selectedDebt,
-                      );
-                      debt['amount'] -= amount;
-                      if (debt['amount'] < 0) debt['amount'] = 0;
-                    });
-                    Navigator.of(context).pop();
-                  }
-                }
-              },
-              child: Text('Bayar', style: GoogleFonts.poppins()),
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 }
