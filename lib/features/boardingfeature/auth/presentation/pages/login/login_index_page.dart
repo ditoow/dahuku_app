@@ -18,25 +18,16 @@ class LoginIndexPage extends StatefulWidget {
 }
 
 class _LoginIndexPageState extends State<LoginIndexPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  final _formFieldsKey = GlobalKey<LoginFormFieldsState>();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => GetIt.I<AuthBloc>(),
-      child: BlocConsumer<AuthBloc, AuthState>(
+      child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
-            // User sudah punya akun, langsung ke dashboard (skip onboarding)
             Navigator.pushReplacementNamed(context, '/dashboard');
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -47,94 +38,76 @@ class _LoginIndexPageState extends State<LoginIndexPage> {
             );
           }
         },
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: AppColors.bgPage,
-            body: Stack(
-              children: [
-                // Background
-                const LoginMeshBackground(),
+        child: Scaffold(
+          backgroundColor: AppColors.bgPage,
+          body: Stack(
+            children: [
+              // Background
+              const LoginMeshBackground(),
 
-                // Main content
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: IntrinsicHeight(
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                SafeArea(
-                                  child: Column(
-                                    children: [
-                                      // App Bar
-                                      const LoginAppBar(),
+              // Main content
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              SafeArea(
+                                child: Column(
+                                  children: [
+                                    // App Bar
+                                    const LoginAppBar(),
 
-                                      // Content
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const SizedBox(height: 16),
-
-                                            // Header
-                                            const LoginHeader(),
-                                            const SizedBox(height: 32),
-
-                                            // Form Fields
-                                            LoginFormFields(
-                                              emailController: _emailController,
-                                              passwordController:
-                                                  _passwordController,
-                                            ),
-                                          ],
-                                        ),
+                                    // Content
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
                                       ),
-                                    ],
-                                  ),
-                                ),
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 16),
 
-                                // Spacer
-                                const Spacer(),
+                                          // Header
+                                          const LoginHeader(),
+                                          const SizedBox(height: 32),
 
-                                // Bottom Section
-                                LoginBottomSection(
-                                  isLoading: state.status == AuthStatus.loading,
-                                  onLoginPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      context.read<AuthBloc>().add(
-                                        AuthLoginRequested(
-                                          email: _emailController.text,
-                                          password: _passwordController.text,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  onRegisterPressed: () {
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      '/register',
-                                    );
-                                  },
+                                          // Form Fields - manages its own controllers
+                                          LoginFormFields(key: _formFieldsKey),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+
+                              // Spacer
+                              const Spacer(),
+
+                              // Bottom Section - gets state from BLoC
+                              LoginBottomSection(
+                                formKey: _formKey,
+                                getEmail: () =>
+                                    _formFieldsKey.currentState?.email ?? '',
+                                getPassword: () =>
+                                    _formFieldsKey.currentState?.password ?? '',
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

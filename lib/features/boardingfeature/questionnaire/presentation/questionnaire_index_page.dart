@@ -9,7 +9,7 @@ import 'components/questionnaire_bottom_section.dart';
 import 'components/questionnaire_header.dart';
 import 'components/questionnaire_option_card.dart';
 import 'components/questionnaire_progress.dart';
-import 'components/wallet_balance_input.dart';
+import 'components/wallet_balance_inputs_section.dart';
 
 /// Questionnaire data model
 class QuestionData {
@@ -46,14 +46,8 @@ class QuestionnaireIndexPage extends StatefulWidget {
 }
 
 class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
-  // Wallet controllers
-  final _belanjController = TextEditingController();
-  final _tabunganController = TextEditingController();
-  final _daruratController = TextEditingController();
-
-  // Debt controllers
-  final _debtAmountController = TextEditingController();
-  DebtType _selectedDebtType = DebtType.none;
+  final _walletInputsKey = GlobalKey<WalletBalanceInputsSectionState>();
+  final _debtInputsKey = GlobalKey<DebtInputSectionState>();
 
   static const List<QuestionData> _questions = [
     QuestionData(
@@ -91,38 +85,12 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
   ];
 
   @override
-  void dispose() {
-    _belanjController.dispose();
-    _tabunganController.dispose();
-    _daruratController.dispose();
-    _debtAmountController.dispose();
-    super.dispose();
-  }
-
-  bool _canProceed(QuestionnaireState state) {
-    final currentQuestion = _questions[state.currentQuestionIndex];
-
-    if (currentQuestion.isWalletInput) {
-      // At least one wallet should have a value
-      return _belanjController.text.isNotEmpty ||
-          _tabunganController.text.isNotEmpty ||
-          _daruratController.text.isNotEmpty;
-    } else if (currentQuestion.isDebtInput) {
-      // Debt is optional, always can proceed
-      return true;
-    } else {
-      return state.hasCurrentAnswer;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => GetIt.I<QuestionnaireBloc>(),
       child: BlocConsumer<QuestionnaireBloc, QuestionnaireState>(
         listener: (context, state) {
           if (state.status == QuestionnaireStatus.completed) {
-            // Navigate to dashboard
             Navigator.pushReplacementNamed(context, '/dashboard');
           }
         },
@@ -188,9 +156,11 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
 
                               // Content based on question type
                               if (currentQuestion.isWalletInput)
-                                _buildWalletInputs()
+                                WalletBalanceInputsSection(
+                                  key: _walletInputsKey,
+                                )
                               else if (currentQuestion.isDebtInput)
-                                _buildDebtInputs()
+                                DebtInputSection(key: _debtInputsKey)
                               else if (currentQuestion.options != null)
                                 _buildOptions(context, state, currentQuestion),
 
@@ -200,67 +170,11 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
                         ),
                       ),
 
-                      // Bottom Section
+                      // Bottom Section - gets state from BLoC
                       QuestionnaireBottomSection(
-                        isFirstQuestion: state.isFirstQuestion,
-                        isLastQuestion:
-                            state.currentQuestionIndex == _questions.length - 1,
-                        canProceed: _canProceed(state),
-                        onPreviousPressed: () {
-                          context.read<QuestionnaireBloc>().add(
-                            QuestionnairePreviousPressed(),
-                          );
-                        },
-                        onNextPressed: () {
-                          if (state.currentQuestionIndex ==
-                              _questions.length - 1) {
-                            context.read<QuestionnaireBloc>().add(
-                              QuestionnaireSubmitted(
-                                initialBelanja:
-                                    double.tryParse(
-                                      _belanjController.text.replaceAll(
-                                        RegExp(r'[^0-9]'),
-                                        '',
-                                      ),
-                                    ) ??
-                                    0,
-                                initialTabungan:
-                                    double.tryParse(
-                                      _tabunganController.text.replaceAll(
-                                        RegExp(r'[^0-9]'),
-                                        '',
-                                      ),
-                                    ) ??
-                                    0,
-                                initialDarurat:
-                                    double.tryParse(
-                                      _daruratController.text.replaceAll(
-                                        RegExp(r'[^0-9]'),
-                                        '',
-                                      ),
-                                    ) ??
-                                    0,
-                                hasDebt:
-                                    _debtAmountController.text.isNotEmpty &&
-                                    _selectedDebtType != DebtType.none,
-                                debtAmount: double.tryParse(
-                                  _debtAmountController.text.replaceAll(
-                                    RegExp(r'[^0-9]'),
-                                    '',
-                                  ),
-                                ),
-                                debtType: _selectedDebtType
-                                    .toString()
-                                    .split('.')
-                                    .last,
-                              ),
-                            );
-                          } else {
-                            context.read<QuestionnaireBloc>().add(
-                              QuestionnaireNextPressed(),
-                            );
-                          }
-                        },
+                        totalQuestions: _questions.length,
+                        walletInputsKey: _walletInputsKey,
+                        debtInputsKey: _debtInputsKey,
                       ),
                     ],
                   ),
@@ -301,52 +215,6 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
           ),
         );
       }).toList(),
-    );
-  }
-
-  Widget _buildWalletInputs() {
-    return Column(
-      children: [
-        WalletBalanceInput(
-          label: 'Dompet Belanja',
-          hint: '0',
-          icon: Icons.shopping_bag_outlined,
-          iconColor: AppColors.walletShopping,
-          controller: _belanjController,
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 12),
-        WalletBalanceInput(
-          label: 'Dompet Tabungan',
-          hint: '0',
-          icon: Icons.savings_outlined,
-          iconColor: AppColors.walletSaving,
-          controller: _tabunganController,
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: 12),
-        WalletBalanceInput(
-          label: 'Dompet Darurat',
-          hint: '0',
-          icon: Icons.security_outlined,
-          iconColor: AppColors.walletEmergency,
-          controller: _daruratController,
-          onChanged: (_) => setState(() {}),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDebtInputs() {
-    return DebtInputSection(
-      amountController: _debtAmountController,
-      selectedType: _selectedDebtType,
-      onTypeChanged: (type) {
-        setState(() {
-          _selectedDebtType = type;
-        });
-      },
-      onAmountChanged: (_) => setState(() {}),
     );
   }
 }

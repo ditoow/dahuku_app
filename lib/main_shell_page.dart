@@ -7,7 +7,7 @@ import 'core/widgets/bottom_navigation_bar.dart';
 import 'features/boardingfeature/auth/bloc/auth_bloc.dart';
 import 'features/dashboard/bloc/dashboard_bloc.dart';
 import 'features/dashboard/bloc/dashboard_event.dart';
-import 'features/dashboard/presentation/dashboard_index_page.dart';
+import 'features/dashboard/presentation/shared/dashboard_index_page.dart';
 import 'features/education/presentation/education_index_page.dart';
 import 'features/analytics/presentation/analytics_page.dart';
 

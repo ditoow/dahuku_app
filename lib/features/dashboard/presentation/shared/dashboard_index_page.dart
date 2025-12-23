@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../account/bloc/account_bloc.dart';
-import '../../account/bloc/account_event.dart';
-import '../bloc/dashboard_bloc.dart';
-import '../bloc/dashboard_event.dart';
-import '../bloc/dashboard_state.dart';
-import 'components/dashboard_header.dart';
-import 'components/quick_summary_section.dart';
-import 'components/recent_transactions_section.dart';
-import 'components/wallet_card.dart';
+import '../../../account/bloc/account_bloc.dart';
+import '../../../account/bloc/account_event.dart';
+import '../../bloc/dashboard_bloc.dart';
+import '../../bloc/dashboard_event.dart';
+import '../../bloc/dashboard_state.dart';
+import '../components/dashboard_header.dart';
+import '../components/quick_summary_section.dart';
+import '../components/recent_transactions_section.dart';
+import '../components/wallet_card.dart';
+import '../components/dashboard_background.dart';
 
 /// Dashboard main page - integrated with Supabase
 /// This version is intended to be used within a shell (no Scaffold/NavBar)
@@ -47,44 +48,7 @@ class _DashboardContentState extends State<DashboardContent> {
         return Stack(
           children: [
             // Gradient backgrounds
-            Positioned(
-              top: -50,
-              left: 0,
-              right: -80,
-              child: Container(
-                height: 350,
-                decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                    center: Alignment(0.5, -0.5),
-                    radius: 1.2,
-                    colors: [
-                      Color.fromARGB(106, 211, 100, 255),
-                      Color(0xFFF4F1FF),
-                      Color.fromARGB(31, 255, 255, 255),
-                    ],
-                    stops: [0.0, 0.5, 0.7],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: Alignment.topRight,
-                    radius: 1.0,
-                    colors: [
-                      const Color(0xFFD4C4FC).withAlpha(153),
-                      const Color.fromARGB(0, 255, 255, 255),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            const DashboardBackground(),
 
             // Content based on state
             _buildContent(context, state),

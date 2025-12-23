@@ -16,21 +16,13 @@ class PinIndexPage extends StatefulWidget {
 }
 
 class _PinIndexPageState extends State<PinIndexPage> {
-  final _pinController = TextEditingController();
-  final _pinFocusNode = FocusNode();
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    _pinFocusNode.dispose();
-    super.dispose();
-  }
+  final _pinInputKey = GlobalKey<PinInputSectionState>();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => PinBloc(),
-      child: BlocConsumer<PinBloc, PinState>(
+      child: BlocListener<PinBloc, PinState>(
         listener: (context, state) {
           if (state.status == PinStatus.success) {
             Navigator.pushReplacementNamed(context, '/questionnaire');
@@ -43,115 +35,84 @@ class _PinIndexPageState extends State<PinIndexPage> {
             );
           }
         },
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: AppColors.bgPage,
-            body: Stack(
-              children: [
-                // Purple gradient background at top
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 350,
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(
-                        center: Alignment.topCenter,
-                        radius: 1.2,
-                        colors: [
-                          const Color(0xFFE8E0FF),
-                          const Color(0xFFF4F1FF),
-                          AppColors.bgPage,
-                        ],
-                      ),
+        child: Scaffold(
+          backgroundColor: AppColors.bgPage,
+          body: Stack(
+            children: [
+              // Purple gradient background at top
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 350,
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.topCenter,
+                      radius: 1.2,
+                      colors: [
+                        const Color(0xFFE8E0FF),
+                        const Color(0xFFF4F1FF),
+                        AppColors.bgPage,
+                      ],
                     ),
                   ),
                 ),
+              ),
 
-                // Main content
-                SafeArea(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
-                          ),
-                          child: IntrinsicHeight(
-                            child: Column(
-                              children: [
-                                // App Bar
-                                const PinAppBar(),
+              // Main content
+              SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              // App Bar
+                              const PinAppBar(),
 
-                                // Content
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(height: 16),
-
-                                      // Header
-                                      const PinHeader(),
-                                      const SizedBox(height: 40),
-
-                                      // PIN Input Section
-                                      GestureDetector(
-                                        onTap: () {
-                                          _pinFocusNode.requestFocus();
-                                        },
-                                        child: PinInputSection(
-                                          label: 'MASUKKAN 6 DIGIT PIN',
-                                          controller: _pinController,
-                                          focusNode: _pinFocusNode,
-                                          isActive: true,
-                                          onChanged: (value) {
-                                            setState(() {});
-                                            if (value.length == 6) {
-                                              context.read<PinBloc>().add(
-                                                PinDigitEntered(
-                                                  digit: value,
-                                                  isConfirmation: false,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              // Content
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
                                 ),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 16),
 
-                                // Spacer
-                                const Spacer(),
+                                    // Header
+                                    const PinHeader(),
+                                    const SizedBox(height: 40),
 
-                                // Bottom Section
-                                PinBottomSection(
-                                  isEnabled: _pinController.text.length == 6,
-                                  isLoading: false,
-                                  onPressed: () {
-                                    if (_pinController.text.length == 6) {
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        '/questionnaire',
-                                      );
-                                    }
-                                  },
+                                    // PIN Input Section - manages its own state
+                                    PinInputSection(key: _pinInputKey),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+
+                              // Spacer
+                              const Spacer(),
+
+                              // Bottom Section - gets state from BLoC
+                              PinBottomSection(
+                                getPin: () =>
+                                    _pinInputKey.currentState?.pin ?? '',
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
-          );
-        },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

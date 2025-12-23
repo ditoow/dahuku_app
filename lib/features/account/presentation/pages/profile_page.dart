@@ -14,9 +14,7 @@ class ProfilePage extends StatelessWidget {
       body: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
           if (state is AccountLoaded) {
-            return Center(
-              child: ProfileHeader(user: state.user),
-            );
+            return Center(child: ProfileHeader());
           }
           return const Center(child: CircularProgressIndicator());
         },

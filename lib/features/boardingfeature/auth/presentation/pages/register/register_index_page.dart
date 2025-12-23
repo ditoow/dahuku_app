@@ -18,24 +18,14 @@ class RegisterIndexPage extends StatefulWidget {
 }
 
 class _RegisterIndexPageState extends State<RegisterIndexPage> {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  final _formFieldsKey = GlobalKey<RegisterFormFieldsState>();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => GetIt.I<AuthBloc>(),
-      child: BlocConsumer<AuthBloc, AuthState>(
+      child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.authenticated) {
             Navigator.pushReplacementNamed(context, '/pin');
@@ -48,95 +38,79 @@ class _RegisterIndexPageState extends State<RegisterIndexPage> {
             );
           }
         },
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: AppColors.bgPage,
-            body: Stack(
-              children: [
-                // Background
-                const RegisterMeshBackground(),
+        child: Scaffold(
+          backgroundColor: AppColors.bgPage,
+          body: Stack(
+            children: [
+              // Background
+              const RegisterMeshBackground(),
 
-                // Main content
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: IntrinsicHeight(
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                SafeArea(
-                                  child: Column(
-                                    children: [
-                                      // App Bar
-                                      const RegisterAppBar(),
-                                      // Content
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const SizedBox(height: 8),
-
-                                            // Header
-                                            const RegisterHeader(),
-                                            const SizedBox(height: 28),
-
-                                            // Form Fields
-                                            RegisterFormFields(
-                                              nameController: _nameController,
-                                              emailController: _emailController,
-                                              passwordController:
-                                                  _passwordController,
-                                            ),
-                                          ],
-                                        ),
+              // Main content
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              SafeArea(
+                                child: Column(
+                                  children: [
+                                    // App Bar
+                                    const RegisterAppBar(),
+                                    // Content
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
                                       ),
-                                    ],
-                                  ),
-                                ),
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 8),
 
-                                // Spacer
-                                const Spacer(),
+                                          // Header
+                                          const RegisterHeader(),
+                                          const SizedBox(height: 28),
 
-                                // Bottom Section
-                                RegisterBottomSection(
-                                  isLoading: state.status == AuthStatus.loading,
-                                  onRegisterPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      context.read<AuthBloc>().add(
-                                        AuthRegisterRequested(
-                                          name: _nameController.text,
-                                          email: _emailController.text,
-                                          password: _passwordController.text,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  onLoginPressed: () {
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      '/login',
-                                    );
-                                  },
+                                          // Form Fields - manages its own controllers
+                                          RegisterFormFields(
+                                            key: _formFieldsKey,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+
+                              // Spacer
+                              const Spacer(),
+
+                              // Bottom Section - gets state from BLoC
+                              RegisterBottomSection(
+                                formKey: _formKey,
+                                getName: () =>
+                                    _formFieldsKey.currentState?.name ?? '',
+                                getEmail: () =>
+                                    _formFieldsKey.currentState?.email ?? '',
+                                getPassword: () =>
+                                    _formFieldsKey.currentState?.password ?? '',
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

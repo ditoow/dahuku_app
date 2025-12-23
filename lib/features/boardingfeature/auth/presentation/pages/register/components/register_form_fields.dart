@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/auth_text_field.dart';
 
-/// Form fields for register page
-class RegisterFormFields extends StatelessWidget {
-  final TextEditingController nameController;
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
+/// Form fields for register page - manages its own controllers
+class RegisterFormFields extends StatefulWidget {
+  const RegisterFormFields({super.key});
 
-  const RegisterFormFields({
-    super.key,
-    required this.nameController,
-    required this.emailController,
-    required this.passwordController,
-  });
+  @override
+  State<RegisterFormFields> createState() => RegisterFormFieldsState();
+}
+
+class RegisterFormFieldsState extends State<RegisterFormFields> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  /// Getters for parent access via GlobalKey
+  String get name => _nameController.text;
+  String get email => _emailController.text;
+  String get password => _passwordController.text;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +36,7 @@ class RegisterFormFields extends StatelessWidget {
           label: 'Nama Lengkap',
           hint: 'Cth: Budi Santoso',
           prefixIcon: Icons.person_outline,
-          controller: nameController,
+          controller: _nameController,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Nama tidak boleh kosong';
@@ -38,7 +51,7 @@ class RegisterFormFields extends StatelessWidget {
           label: 'Email',
           hint: 'Cth: budi@email.com',
           prefixIcon: Icons.mail_outline,
-          controller: emailController,
+          controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -60,7 +73,7 @@ class RegisterFormFields extends StatelessWidget {
           hint: 'Minimal 8 karakter',
           prefixIcon: Icons.lock_outline,
           isPassword: true,
-          controller: passwordController,
+          controller: _passwordController,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Kata sandi tidak boleh kosong';

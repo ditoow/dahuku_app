@@ -3,16 +3,30 @@ import '../../../../../../../core/constants/app_colors.dart';
 import '../../../../../../../core/constants/app_text_styles.dart';
 import '../../../widgets/auth_text_field.dart';
 
-/// Form fields for login page
-class LoginFormFields extends StatelessWidget {
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
+/// Form fields for login page - manages its own controllers
+class LoginFormFields extends StatefulWidget {
+  const LoginFormFields({super.key});
 
-  const LoginFormFields({
-    super.key,
-    required this.emailController,
-    required this.passwordController,
-  });
+  @override
+  State<LoginFormFields> createState() => LoginFormFieldsState();
+}
+
+class LoginFormFieldsState extends State<LoginFormFields> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  /// Get email value - called by parent via GlobalKey
+  String get email => _emailController.text;
+
+  /// Get password value - called by parent via GlobalKey
+  String get password => _passwordController.text;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +37,7 @@ class LoginFormFields extends StatelessWidget {
           label: 'Email atau No. HP',
           hint: 'Contoh: user@email.com',
           prefixIcon: Icons.mail_outline,
-          controller: emailController,
+          controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -40,7 +54,7 @@ class LoginFormFields extends StatelessWidget {
           hint: 'Masukkan kata sandi',
           prefixIcon: Icons.lock_outline,
           isPassword: true,
-          controller: passwordController,
+          controller: _passwordController,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Kata sandi tidak boleh kosong';

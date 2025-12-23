@@ -6,20 +6,30 @@ import '../../../../../../core/constants/app_text_styles.dart';
 /// Debt type options
 enum DebtType { none, rentenir, keluarga, koperasi }
 
-/// Debt input section with amount and type selector
-class DebtInputSection extends StatelessWidget {
-  final TextEditingController amountController;
-  final DebtType selectedType;
-  final ValueChanged<DebtType> onTypeChanged;
-  final ValueChanged<String>? onAmountChanged;
+/// Debt input section - manages its own controller and state
+class DebtInputSection extends StatefulWidget {
+  const DebtInputSection({super.key});
 
-  const DebtInputSection({
-    super.key,
-    required this.amountController,
-    required this.selectedType,
-    required this.onTypeChanged,
-    this.onAmountChanged,
-  });
+  @override
+  State<DebtInputSection> createState() => DebtInputSectionState();
+}
+
+class DebtInputSectionState extends State<DebtInputSection> {
+  final _amountController = TextEditingController();
+  DebtType _selectedType = DebtType.none;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  /// Get debt data for parent access
+  bool get hasDebt =>
+      _amountController.text.isNotEmpty && _selectedType != DebtType.none;
+  double? get debtAmount =>
+      double.tryParse(_amountController.text.replaceAll(RegExp(r'[^0-9]'), ''));
+  String? get debtType => _selectedType.toString().split('.').last;
 
   @override
   Widget build(BuildContext context) {
@@ -82,12 +92,12 @@ class DebtInputSection extends StatelessWidget {
                         ),
                         Expanded(
                           child: TextField(
-                            controller: amountController,
+                            controller: _amountController,
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                             ],
-                            onChanged: onAmountChanged,
+                            onChanged: (_) => setState(() {}),
                             style: AppTextStyles.bodyMedium.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -160,11 +170,15 @@ class DebtInputSection extends StatelessWidget {
   }
 
   Widget _buildTypeChip(String label, DebtType type, IconData icon) {
-    final isSelected = selectedType == type;
+    final isSelected = _selectedType == type;
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => onTypeChanged(type),
+        onTap: () {
+          setState(() {
+            _selectedType = type;
+          });
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           decoration: BoxDecoration(
