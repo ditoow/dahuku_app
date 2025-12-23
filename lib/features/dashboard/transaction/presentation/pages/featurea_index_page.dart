@@ -207,7 +207,10 @@ class _FeatureaPageContent extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
       title: const Text('Catat Transaksi'),
-      leading: Icon(Icons.arrow_back),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.pop(context),
+      ),
     );
   }
 }
