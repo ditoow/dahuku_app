@@ -18,6 +18,8 @@ import 'main_shell_page.dart';
 
 // Transaction
 import 'features/dashboard/transaction/presentation/pages/featurea_index_page.dart';
+import 'features/dashboard/pindah_uang/presentation/pindah_uang_page.dart';
+import 'features/dashboard/presentation/dompet_page.dart';
 
 // Account
 import 'features/account/bloc/account_bloc.dart';
@@ -49,6 +51,8 @@ class DahuKuApp extends StatelessWidget {
           '/questionnaire': (context) => const QuestionnaireIndexPage(),
           '/dashboard': (context) => const MainShellPage(),
           '/catat-transaksi': (context) => const FeatureaIndexPage(),
+          '/pindah-uang': (context) => const PindahUangPage(),
+          '/dompet': (context) => const DompetPage(),
         },
       ),
     );

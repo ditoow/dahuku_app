@@ -124,6 +124,7 @@ class WalletCardsSection extends StatelessWidget {
                         wallet: wallets[index],
                         onTap: () {
                           // Navigate to wallet detail
+                          Navigator.pushNamed(context, '/dompet');
                         },
                       ),
                     );
