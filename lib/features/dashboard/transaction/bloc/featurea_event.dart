@@ -3,6 +3,14 @@ import '../data/models/transaction_category.dart';
 /// Base class for all transaction feature events
 abstract class FeatureaEvent {}
 
+/// Load wallets from database
+class LoadWallets extends FeatureaEvent {
+  final String? preselectedWalletId;
+  final bool? forceIncomeMode;
+
+  LoadWallets({this.preselectedWalletId, this.forceIncomeMode});
+}
+
 /// Toggle between income and expense mode
 class ToggleTransactionType extends FeatureaEvent {
   final bool isIncome;
@@ -41,6 +49,13 @@ class SelectWallet extends FeatureaEvent {
 
 /// Save the transaction
 class SaveTransaction extends FeatureaEvent {}
+
+/// Select wallet by ID
+class SelectWalletById extends FeatureaEvent {
+  final String walletId;
+  final String walletName;
+  SelectWalletById({required this.walletId, required this.walletName});
+}
 
 /// Reset the form to initial state
 class ResetForm extends FeatureaEvent {}

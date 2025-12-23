@@ -4,10 +4,11 @@ import '../../../core/constants/app_colors.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
+import '../data/models/wallet_model.dart';
 
-/// Dompet (Wallet) detail page with wallet info and actions
-class DompetPage extends StatelessWidget {
-  const DompetPage({super.key});
+/// Dana Darurat (Emergency Fund) detail page
+class DaruratPage extends StatelessWidget {
+  const DaruratPage({super.key});
 
   String _formatCurrency(double amount) {
     final formatted = amount
@@ -23,10 +24,10 @@ class DompetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, state) {
-        // Get primary wallet (Dompet Belanja)
-        final primaryWallet = state.wallets.isNotEmpty
+        // Get darurat wallet
+        final daruratWallet = state.wallets.isNotEmpty
             ? state.wallets.firstWhere(
-                (w) => w.isPrimary,
+                (w) => w.type == WalletType.darurat,
                 orElse: () => state.wallets.first,
               )
             : null;
@@ -35,7 +36,7 @@ class DompetPage extends StatelessWidget {
           backgroundColor: AppColors.bgPage,
           body: Stack(
             children: [
-              // Background gradient
+              // Background gradient - red/orange theme for emergency
               _buildGradientBackground(),
 
               // Content
@@ -55,14 +56,19 @@ class DompetPage extends StatelessWidget {
                             const SizedBox(height: 16),
 
                             // Wallet card
-                            if (primaryWallet != null)
-                              _buildMainWalletCard(primaryWallet),
+                            if (daruratWallet != null)
+                              _buildMainWalletCard(daruratWallet),
 
                             const SizedBox(height: 32),
 
                             // Action buttons
-                            if (primaryWallet != null)
-                              _buildActionButtons(context, primaryWallet),
+                            if (daruratWallet != null)
+                              _buildActionButtons(context, daruratWallet),
+
+                            const SizedBox(height: 32),
+
+                            // Emergency fund info
+                            _buildEmergencyFundInfo(),
 
                             const SizedBox(height: 32),
 
@@ -94,8 +100,8 @@ class DompetPage extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.primary.withOpacity(0.15),
-              AppColors.accentPurple.withOpacity(0.05),
+              Colors.orange.withAlpha(38),
+              Colors.red.withAlpha(13),
               Colors.transparent,
             ],
           ),
@@ -115,7 +121,7 @@ class DompetPage extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           const Text(
-            'Dompetku',
+            'Dana Darurat',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -135,12 +141,12 @@ class DompetPage extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.blue.shade400, AppColors.primary],
+          colors: [Colors.orange.shade400, Colors.deepOrange.shade600],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: Colors.orange.withAlpha(77),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -157,11 +163,11 @@ class DompetPage extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withAlpha(51),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Icon(
-                  Icons.shopping_bag_outlined,
+                  Icons.shield_outlined,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -172,11 +178,11 @@ class DompetPage extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha(26),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
-                  'Utama',
+                  'Darurat',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
@@ -190,8 +196,8 @@ class DompetPage extends StatelessWidget {
 
           // Label
           Text(
-            'Dompet Belanja',
-            style: TextStyle(fontSize: 14, color: Colors.blue.shade100),
+            'Dana Darurat',
+            style: TextStyle(fontSize: 14, color: Colors.orange.shade100),
           ),
           const SizedBox(height: 6),
 
@@ -228,7 +234,7 @@ class DompetPage extends StatelessWidget {
               child: _ActionButton(
                 icon: Icons.add,
                 label: 'Tambah Dana',
-                color: AppColors.success,
+                color: Colors.orange,
                 onTap: () async {
                   final result = await Navigator.pushNamed(
                     context,
@@ -268,6 +274,82 @@ class DompetPage extends StatelessWidget {
     );
   }
 
+  Widget _buildEmergencyFundInfo() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orange.withAlpha(51)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.orange.withAlpha(26),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.lightbulb_outline,
+                  color: Colors.orange,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Tips Dana Darurat',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMain,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildTipItem('Idealnya 3-6x pengeluaran bulanan'),
+          const SizedBox(height: 8),
+          _buildTipItem('Simpan di rekening terpisah'),
+          const SizedBox(height: 8),
+          _buildTipItem('Hanya gunakan untuk keadaan darurat'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipItem(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 6),
+          width: 6,
+          height: 6,
+          decoration: const BoxDecoration(
+            color: Colors.orange,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSub,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildRecentTransactions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +381,7 @@ class DompetPage extends StatelessWidget {
   }
 }
 
-/// Action button widget for quick actions
+/// Action button widget
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -322,10 +404,10 @@ class _ActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withAlpha(51)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withAlpha(10),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -337,7 +419,7 @@ class _ActionButton extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withAlpha(26),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 22),
@@ -345,7 +427,7 @@ class _ActionButton extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textMain,

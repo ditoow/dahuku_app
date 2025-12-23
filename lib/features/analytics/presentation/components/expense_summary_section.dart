@@ -1,10 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../bloc/analytics_state.dart';
 
 /// Expense summary card with bar chart and insights
-/// TODO: Connect to analytics BLoC for real data
 class ExpenseSummarySection extends StatelessWidget {
-  const ExpenseSummarySection({super.key});
+  final double totalExpense;
+  final double remainingBudget;
+  final List<CategoryExpense> expensesByCategory;
+  final String? insight;
+
+  const ExpenseSummarySection({
+    super.key,
+    required this.totalExpense,
+    required this.remainingBudget,
+    required this.expensesByCategory,
+    this.insight,
+  });
+
+  String _formatCurrency(double amount) {
+    final absAmount = amount.abs();
+    if (absAmount >= 1000000) {
+      return '${(absAmount / 1000000).toStringAsFixed(1)}jt';
+    }
+    return absAmount
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]}.',
+        );
+  }
+
+  String _formatFullCurrency(double amount) {
+    return amount
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (m) => '${m[1]}.',
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +77,7 @@ class ExpenseSummarySection extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Rp 4.250.000',
+                    'Rp ${_formatFullCurrency(totalExpense)}',
                     style: GoogleFonts.poppins(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -66,7 +99,7 @@ class ExpenseSummarySection extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '+Rp 1.8jt',
+                    '+Rp ${_formatCurrency(remainingBudget)}',
                     style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -79,42 +112,57 @@ class ExpenseSummarySection extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           // Bar chart
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildExpenseBar('Snack', 0.4, false),
-              _buildExpenseBar('Makan', 0.75, false),
-              _buildExpenseBar('Belanja', 1.0, true),
-              _buildExpenseBar('Trans', 0.5, false),
-              _buildExpenseBar('Lain', 0.3, false),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Insight box
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(26),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withAlpha(26)),
+          if (expensesByCategory.isNotEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: expensesByCategory.map((category) {
+                final isMax = category.percentage >= 0.95;
+                return _buildExpenseBar(
+                  category.category,
+                  category.percentage,
+                  isMax,
+                );
+              }).toList(),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30),
+              child: Text(
+                'Belum ada data pengeluaran',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: const Color(0xFFBBDEFB),
+                ),
+              ),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.lightbulb, color: Colors.yellow, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Insight: Pengeluaran kategori Belanja meningkat 25% dibanding minggu lalu.',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: const Color(0xFFE3F2FD),
-                      height: 1.4,
+          if (insight != null) ...[
+            const SizedBox(height: 16),
+            // Insight box
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(26),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withAlpha(26)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lightbulb, color: Colors.yellow, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      insight!,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: const Color(0xFFE3F2FD),
+                        height: 1.4,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -130,7 +178,7 @@ class ExpenseSummarySection extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               width: 20,
-              height: 80 * height,
+              height: 80 * height.clamp(0.1, 1.0),
               decoration: BoxDecoration(
                 color: isHighlighted
                     ? Colors.white.withAlpha(230)
@@ -158,6 +206,7 @@ class ExpenseSummarySection extends StatelessWidget {
               color: isHighlighted ? Colors.white : const Color(0xFFBBDEFB),
               fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

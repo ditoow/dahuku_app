@@ -8,6 +8,11 @@ abstract class PindahUangEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+/// Load wallets from database
+class LoadWallets extends PindahUangEvent {
+  const LoadWallets();
+}
+
 /// Select target wallet for transfer
 class SelectTargetWallet extends PindahUangEvent {
   final String walletType; // 'tabungan' or 'darurat'

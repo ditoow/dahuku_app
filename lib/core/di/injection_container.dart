@@ -24,10 +24,23 @@ import '../../features/dashboard/bloc/dashboard_bloc.dart';
 import '../../features/dashboard/bloc/wallet_bloc.dart';
 import '../../features/dashboard/bloc/transaction_bloc.dart';
 
+// Feature: Pindah Uang
+import '../../features/dashboard/pindah_uang/data/services/transfer_service.dart';
+import '../../features/dashboard/pindah_uang/data/repositories/transfer_repository.dart';
+import '../../features/dashboard/pindah_uang/bloc/pindah_uang_bloc.dart';
+
 // Feature: Questionnaire
 import '../../features/boardingfeature/questionnaire/data/repositories/questionnaire_repository.dart';
 import '../../features/boardingfeature/questionnaire/data/services/questionnaire_service.dart';
 import '../../features/boardingfeature/questionnaire/bloc/questionnaire_bloc.dart';
+
+// Feature: Analytics
+import '../../features/analytics/bloc/analytics_bloc.dart';
+
+// Feature: Education (Comics)
+import '../../features/education/data/services/comic_service.dart';
+import '../../features/education/data/repositories/comic_repository.dart';
+import '../../features/education/bloc/comic_bloc.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -84,6 +97,13 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<TransactionBloc>(() => TransactionBloc(repository: sl()));
 
   // ==================
+  // FEATURE: PINDAH UANG
+  // ==================
+  sl.registerLazySingleton<TransferService>(() => TransferService());
+  sl.registerLazySingleton<TransferRepository>(() => TransferRepository(sl()));
+  sl.registerFactory<PindahUangBloc>(() => PindahUangBloc(sl()));
+
+  // ==================
   // FEATURE: QUESTIONNAIRE
   // ==================
   sl.registerLazySingleton<QuestionnaireService>(() => QuestionnaireService());
@@ -93,4 +113,18 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<QuestionnaireBloc>(
     () => QuestionnaireBloc(repository: sl()),
   );
+
+  // ==================
+  // FEATURE: ANALYTICS
+  // ==================
+  sl.registerFactory<AnalyticsBloc>(
+    () => AnalyticsBloc(transactionRepository: sl(), walletRepository: sl()),
+  );
+
+  // ==================
+  // FEATURE: EDUCATION (COMICS)
+  // ==================
+  sl.registerLazySingleton<ComicService>(() => ComicService());
+  sl.registerLazySingleton<ComicRepository>(() => ComicRepository(sl()));
+  sl.registerFactory<ComicBloc>(() => ComicBloc(repository: sl()));
 }

@@ -45,7 +45,9 @@ class TransactionService {
       );
     }
 
-    final response = await query.order('tanggal_transaksi', ascending: false);
+    final response = await query
+        .order('tanggal_transaksi', ascending: false)
+        .order('dibuat_pada', ascending: false);
 
     if (limit != null) {
       return (response as List)

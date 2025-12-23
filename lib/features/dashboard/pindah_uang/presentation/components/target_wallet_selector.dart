@@ -1,51 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_colors.dart';
-
-/// Target wallet data model
-class TargetWallet {
-  final String type;
-  final String name;
-  final double balance;
-  final IconData icon;
-  final Color color;
-
-  const TargetWallet({
-    required this.type,
-    required this.name,
-    required this.balance,
-    required this.icon,
-    required this.color,
-  });
-}
+import '../../bloc/pindah_uang_state.dart';
 
 /// Selector for target wallet with radio buttons
 class TargetWalletSelector extends StatelessWidget {
+  final List<WalletInfo> wallets;
   final String? selectedWalletType;
-  final ValueChanged<String> onWalletSelected;
+  final String? sourceWalletType;
+  final ValueChanged<WalletInfo> onWalletSelected;
 
   const TargetWalletSelector({
     super.key,
+    required this.wallets,
     required this.selectedWalletType,
+    this.sourceWalletType,
     required this.onWalletSelected,
   });
-
-  // Available target wallets
-  static const List<TargetWallet> _wallets = [
-    TargetWallet(
-      type: 'tabungan',
-      name: 'Tabungan',
-      balance: 15500000,
-      icon: Icons.savings_outlined,
-      color: AppColors.accentPurple,
-    ),
-    TargetWallet(
-      type: 'darurat',
-      name: 'Darurat',
-      balance: 5000000,
-      icon: Icons.medical_services_outlined,
-      color: Color(0xFFFF6B6B),
-    ),
-  ];
 
   String _formatCurrency(double amount) {
     final formatted = amount
@@ -57,15 +27,47 @@ class TargetWalletSelector extends StatelessWidget {
     return 'Rp $formatted';
   }
 
+  IconData _getWalletIcon(String type) {
+    switch (type) {
+      case 'tabungan':
+        return Icons.savings_outlined;
+      case 'darurat':
+        return Icons.medical_services_outlined;
+      case 'belanja':
+      default:
+        return Icons.account_balance_wallet_outlined;
+    }
+  }
+
+  Color _getWalletColor(String type) {
+    switch (type) {
+      case 'tabungan':
+        return Colors.green;
+      case 'darurat':
+        return const Color(0xFFFF6B6B);
+      case 'belanja':
+      default:
+        return AppColors.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Filter out source wallet
+    final targetWallets = wallets
+        .where((w) => sourceWalletType == null || w.tipe != sourceWalletType)
+        .toList();
+
     return Column(
-      children: _wallets.map((wallet) {
-        final isSelected = selectedWalletType == wallet.type;
+      children: targetWallets.map((wallet) {
+        final isSelected = selectedWalletType == wallet.tipe;
+        final color = _getWalletColor(wallet.tipe);
+        final icon = _getWalletIcon(wallet.tipe);
+
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: GestureDetector(
-            onTap: () => onWalletSelected(wallet.type),
+            onTap: () => onWalletSelected(wallet),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -73,13 +75,13 @@ class TargetWalletSelector extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
-                      ? wallet.color.withOpacity(0.5)
-                      : Colors.grey.withOpacity(0.1),
+                      ? color.withAlpha(128)
+                      : Colors.grey.withAlpha(26),
                   width: isSelected ? 2 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withAlpha(10),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -92,10 +94,10 @@ class TargetWalletSelector extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: wallet.color.withOpacity(0.1),
+                      color: color.withAlpha(26),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Icon(wallet.icon, color: wallet.color, size: 24),
+                    child: Icon(icon, color: color, size: 24),
                   ),
                   const SizedBox(width: 16),
 
@@ -105,7 +107,7 @@ class TargetWalletSelector extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          wallet.name,
+                          wallet.nama,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -114,7 +116,7 @@ class TargetWalletSelector extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Saldo: ${_formatCurrency(wallet.balance)}',
+                          'Saldo: ${_formatCurrency(wallet.saldo)}',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSub,
@@ -131,7 +133,7 @@ class TargetWalletSelector extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? wallet.color : AppColors.textLight,
+                        color: isSelected ? color : AppColors.textLight,
                         width: 2,
                       ),
                     ),
@@ -142,7 +144,7 @@ class TargetWalletSelector extends StatelessWidget {
                               height: 12,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: wallet.color,
+                                color: color,
                               ),
                             ),
                           )

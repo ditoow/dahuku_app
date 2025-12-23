@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../bloc/analytics_bloc.dart';
+import '../bloc/analytics_event.dart';
+import '../bloc/analytics_state.dart';
 import 'components/analytics_background.dart';
 import 'components/analytics_header.dart';
 import 'components/expense_summary_section.dart';
@@ -8,75 +13,104 @@ import 'components/savings_goals_section.dart';
 import 'components/debt_management_section.dart';
 import 'components/transaction_history_section.dart';
 
-/// Analytics page - refactored to use const Column pattern
-///
-/// Features:
-/// - Pull-to-refresh for data reload
-/// - Smooth scroll with physics
-/// - Modular component-based architecture
+/// Analytics page - integrated with AnalyticsBloc
 class AnalyticsPage extends StatelessWidget {
   const AnalyticsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgPage,
-      body: Stack(
-        children: [
-          // Header gradient background
-          const AnalyticsBackground(),
-
-          // Main content
-          SafeArea(
-            child: RefreshIndicator(
-              onRefresh: _onRefresh,
-              color: AppColors.primary,
-              backgroundColor: AppColors.cardWhite,
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                slivers: [
-                  // Header
-                  const SliverToBoxAdapter(child: AnalyticsHeader()),
-
-                  // Main content sections
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        // Total Pengeluaran Section
-                        const ExpenseSummarySection(),
-
-                        // Target Tabungan Section
-                        const SavingsGoalsSection(),
-
-                        // Manajemen Hutang Section
-                        const DebtManagementSection(),
-
-                        // Riwayat Transaksi Section
-                        const TransactionHistorySection(),
-
-                        // Space for bottom nav
-                        const SizedBox(height: 100),
-                      ]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+    return BlocProvider(
+      create: (_) => GetIt.I<AnalyticsBloc>()..add(LoadAnalytics()),
+      child: const _AnalyticsPageContent(),
     );
   }
+}
 
-  /// Handle pull-to-refresh
-  /// TODO: Connect to AnalyticsBloc when implemented
-  Future<void> _onRefresh() async {
-    // Simulate refresh delay
-    await Future.delayed(const Duration(milliseconds: 500));
-    // When AnalyticsBloc is implemented:
-    // context.read<AnalyticsBloc>().add(AnalyticsRefreshRequested());
+class _AnalyticsPageContent extends StatelessWidget {
+  const _AnalyticsPageContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bgPage,
+      body: BlocBuilder<AnalyticsBloc, AnalyticsState>(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              // Header gradient background
+              const AnalyticsBackground(),
+
+              // Main content
+              SafeArea(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<AnalyticsBloc>().add(RefreshAnalytics());
+                    await Future.delayed(const Duration(milliseconds: 500));
+                  },
+                  color: AppColors.primary,
+                  backgroundColor: AppColors.cardWhite,
+                  child: state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : CustomScrollView(
+                          physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics(),
+                          ),
+                          slivers: [
+                            // Header
+                            const SliverToBoxAdapter(child: AnalyticsHeader()),
+
+                            // Main content sections
+                            SliverPadding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
+                              sliver: SliverList(
+                                delegate: SliverChildListDelegate([
+                                  // Total Pengeluaran Section
+                                  ExpenseSummarySection(
+                                    totalExpense: state.totalExpenseThisMonth,
+                                    remainingBudget: state.remainingBudget,
+                                    expensesByCategory:
+                                        state.expensesByCategory,
+                                    insight: state.insight,
+                                  ),
+
+                                  // Target Tabungan Section
+                                  const SavingsGoalsSection(),
+
+                                  // Manajemen Hutang Section
+                                  const DebtManagementSection(),
+
+                                  // Riwayat Transaksi Section
+                                  TransactionHistorySection(
+                                    transactions: state.filteredTransactions,
+                                    currentFilter: state.filter,
+                                    searchQuery: state.searchQuery,
+                                    onFilterChanged: (filter) {
+                                      context.read<AnalyticsBloc>().add(
+                                        FilterTransactions(filter),
+                                      );
+                                    },
+                                    onSearchChanged: (query) {
+                                      context.read<AnalyticsBloc>().add(
+                                        SearchTransactions(query),
+                                      );
+                                    },
+                                  ),
+
+                                  // Space for bottom nav
+                                  const SizedBox(height: 100),
+                                ]),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

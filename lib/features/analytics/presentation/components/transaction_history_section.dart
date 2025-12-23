@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../dashboard/data/models/transaction_model.dart';
+import '../../bloc/analytics_state.dart';
 
 /// Transaction history section with search and filters
-/// TODO: Connect to transactions BLoC for real data
 class TransactionHistorySection extends StatelessWidget {
-  const TransactionHistorySection({super.key});
+  final List<TransactionModel> transactions;
+  final TransactionFilter currentFilter;
+  final String searchQuery;
+  final ValueChanged<TransactionFilter> onFilterChanged;
+  final ValueChanged<String> onSearchChanged;
+
+  const TransactionHistorySection({
+    super.key,
+    required this.transactions,
+    required this.currentFilter,
+    required this.searchQuery,
+    required this.onFilterChanged,
+    required this.onSearchChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +34,9 @@ class TransactionHistorySection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // Search bar - simple input
+        // Search bar
         TextField(
+          onChanged: onSearchChanged,
           decoration: InputDecoration(
             hintText: 'Cari transaksi...',
             hintStyle: GoogleFonts.poppins(
@@ -63,65 +78,67 @@ class TransactionHistorySection extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildFilterButton('Semua', true),
+              _buildFilterButton(
+                'Semua',
+                currentFilter == TransactionFilter.all,
+                () => onFilterChanged(TransactionFilter.all),
+              ),
               const SizedBox(width: 8),
-              _buildFilterButton('Pengeluaran', false),
+              _buildFilterButton(
+                'Pengeluaran',
+                currentFilter == TransactionFilter.expense,
+                () => onFilterChanged(TransactionFilter.expense),
+              ),
               const SizedBox(width: 8),
-              _buildFilterButton('Pemasukan', false),
-              const SizedBox(width: 8),
-              _buildFilterButton('Tanggal', false, hasIcon: true),
+              _buildFilterButton(
+                'Pemasukan',
+                currentFilter == TransactionFilter.income,
+                () => onFilterChanged(TransactionFilter.income),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 16),
         // Transaction list
-        _buildTransactionItem(
-          'Makan Malam',
-          'Hari ini, 19:30',
-          'Dompet Belanja',
-          -45000,
-          Icons.restaurant,
-          Colors.red,
-        ),
-        const SizedBox(height: 12),
-        _buildTransactionItem(
-          'Supermarket',
-          'Kemarin, 14:20',
-          'Dompet Belanja',
-          -350000,
-          Icons.shopping_cart,
-          Colors.blue,
-        ),
-        const SizedBox(height: 12),
-        _buildTransactionItem(
-          'Transfer Masuk',
-          '20 Okt 2023',
-          'Tabungan',
-          2000000,
-          Icons.payments,
-          Colors.green,
-          isIncome: true,
-        ),
-        const SizedBox(height: 12),
-        _buildTransactionItem(
-          'Netflix Premium',
-          '18 Okt 2023',
-          'Dompet Belanja',
-          -186000,
-          Icons.movie,
-          const Color(0xFFA788FD),
-        ),
+        if (transactions.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    size: 48,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    searchQuery.isNotEmpty
+                        ? 'Tidak ada transaksi ditemukan'
+                        : 'Belum ada transaksi bulan ini',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ...transactions.map(
+            (t) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildTransactionItem(t),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildFilterButton(
-    String text,
-    bool isActive, {
-    bool hasIcon = false,
-  }) {
+  Widget _buildFilterButton(String text, bool isActive, VoidCallback onTap) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onTap,
       style: ElevatedButton.styleFrom(
         backgroundColor: isActive ? const Color(0xFF304AFF) : Colors.white,
         foregroundColor: isActive ? Colors.white : const Color(0xFF6B7280),
@@ -133,33 +150,18 @@ class TransactionHistorySection extends StatelessWidget {
             ? BorderSide.none
             : const BorderSide(color: Color(0xFFE5E7EB)),
       ),
-      child: Row(
-        children: [
-          Text(
-            text,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          if (hasIcon) ...[
-            const SizedBox(width: 4),
-            const Icon(Icons.keyboard_arrow_down, size: 12),
-          ],
-        ],
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500),
       ),
     );
   }
 
-  Widget _buildTransactionItem(
-    String title,
-    String time,
-    String wallet,
-    int amount,
-    IconData icon,
-    Color iconColor, {
-    bool isIncome = false,
-  }) {
+  Widget _buildTransactionItem(TransactionModel transaction) {
+    final isIncome = transaction.type == TransactionType.income;
+    final icon = _getTransactionIcon(transaction.title);
+    final color = isIncome ? Colors.green : Colors.red;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -172,7 +174,6 @@ class TransactionHistorySection extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.transparent),
       ),
       child: Row(
         children: [
@@ -180,10 +181,10 @@ class TransactionHistorySection extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: iconColor.withAlpha(26),
+              color: color.withAlpha(26),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(icon, color: iconColor, size: 20),
+            child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -191,7 +192,7 @@ class TransactionHistorySection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  transaction.title,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -202,33 +203,38 @@ class TransactionHistorySection extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      time,
+                      _formatDate(transaction.transactionDate),
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         color: const Color(0xFFBDBDBD),
                       ),
                     ),
-                    Text(
-                      ' • ',
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        color: const Color(0xFFBDBDBD),
+                    if (transaction.description != null) ...[
+                      Text(
+                        ' • ',
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: const Color(0xFFBDBDBD),
+                        ),
                       ),
-                    ),
-                    Text(
-                      wallet,
-                      style: GoogleFonts.poppins(
-                        fontSize: 10,
-                        color: const Color(0xFFBDBDBD),
+                      Expanded(
+                        child: Text(
+                          transaction.description!,
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            color: const Color(0xFFBDBDBD),
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ],
             ),
           ),
           Text(
-            '${isIncome ? '+' : '-'}Rp ${_formatNumber(amount.abs())}',
+            '${isIncome ? '+' : '-'}Rp ${_formatNumber(transaction.amount.toInt().abs())}',
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -240,6 +246,55 @@ class TransactionHistorySection extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  IconData _getTransactionIcon(String title) {
+    final lowerTitle = title.toLowerCase();
+    if (lowerTitle.contains('makan') || lowerTitle.contains('resto')) {
+      return Icons.restaurant;
+    } else if (lowerTitle.contains('belanja') || lowerTitle.contains('shop')) {
+      return Icons.shopping_cart;
+    } else if (lowerTitle.contains('transport') ||
+        lowerTitle.contains('bensin')) {
+      return Icons.directions_car;
+    } else if (lowerTitle.contains('gaji') || lowerTitle.contains('salary')) {
+      return Icons.payments;
+    } else if (lowerTitle.contains('transfer')) {
+      return Icons.swap_horiz;
+    } else {
+      return Icons.receipt;
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inDays == 0) {
+      return 'Hari ini, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    } else if (diff.inDays == 1) {
+      return 'Kemarin, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    } else {
+      return '${date.day} ${_getMonthName(date.month)} ${date.year}';
+    }
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    return months[month - 1];
   }
 
   String _formatNumber(int number) {

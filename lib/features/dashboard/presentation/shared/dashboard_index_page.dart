@@ -107,7 +107,7 @@ class _DashboardContentState extends State<DashboardContent> {
               WalletCardsSection(),
               SizedBox(height: 12),
               QuickSummarySection(),
-              SizedBox(height: 32),
+              SizedBox(height: 12),
               RecentTransactionsSection(),
               SizedBox(height: 24),
             ],

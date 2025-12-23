@@ -8,7 +8,10 @@ class FeatureaState {
   final IncomeSource? selectedIncomeSource;
   final String note;
   final WalletData selectedWallet;
+  final String? selectedWalletId;
+  final String? selectedWalletName;
   final bool isLoading;
+  final bool isSuccess;
   final String? errorMessage;
 
   FeatureaState({
@@ -18,7 +21,10 @@ class FeatureaState {
     this.selectedIncomeSource,
     this.note = '',
     WalletData? selectedWallet,
+    this.selectedWalletId,
+    this.selectedWalletName,
     this.isLoading = false,
+    this.isSuccess = false,
     this.errorMessage,
   }) : selectedWallet = selectedWallet ?? WalletData.defaultWallet;
 
@@ -31,13 +37,17 @@ class FeatureaState {
       selectedIncomeSource: null,
       note: '',
       selectedWallet: WalletData.defaultWallet,
+      selectedWalletId: null,
+      selectedWalletName: null,
       isLoading: false,
+      isSuccess: false,
     );
   }
 
   /// Check if form is valid for saving
   bool get isValid {
     if (amount <= 0) return false;
+    if (selectedWalletId == null || selectedWalletId!.isEmpty) return false;
     if (isIncome) {
       return selectedIncomeSource != null;
     } else {
@@ -52,7 +62,10 @@ class FeatureaState {
     IncomeSource? selectedIncomeSource,
     String? note,
     WalletData? selectedWallet,
+    String? selectedWalletId,
+    String? selectedWalletName,
     bool? isLoading,
+    bool? isSuccess,
     String? errorMessage,
     bool clearExpenseCategory = false,
     bool clearIncomeSource = false,
@@ -69,7 +82,10 @@ class FeatureaState {
           : (selectedIncomeSource ?? this.selectedIncomeSource),
       note: note ?? this.note,
       selectedWallet: selectedWallet ?? this.selectedWallet,
+      selectedWalletId: selectedWalletId ?? this.selectedWalletId,
+      selectedWalletName: selectedWalletName ?? this.selectedWalletName,
       isLoading: isLoading ?? this.isLoading,
+      isSuccess: isSuccess ?? this.isSuccess,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }

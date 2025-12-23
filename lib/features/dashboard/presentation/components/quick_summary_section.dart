@@ -219,32 +219,32 @@ class QuickSummarySection extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Quick action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickActionButton(
-                      icon: Icons.school_outlined,
-                      label: 'Belajar',
-                      isPrimary: true,
-                      onTap: () {
-                        // Navigate to education/belajar
-                        Navigator.pushNamed(context, '/education');
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _QuickActionButton(
-                      icon: Icons.history,
-                      label: 'Riwayat',
-                      isPrimary: false,
-                      onTap: () {
-                        // Navigate to history (todo)
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: _QuickActionButton(
+              //         icon: Icons.school_outlined,
+              //         label: 'Belajar',
+              //         isPrimary: true,
+              //         onTap: () {
+              //           // Navigate to education/belajar
+              //           Navigator.pushNamed(context, '/education');
+              //         },
+              //       ),
+              //     ),
+              //     const SizedBox(width: 16),
+              //     Expanded(
+              //       child: _QuickActionButton(
+              //         icon: Icons.history,
+              //         label: 'Riwayat',
+              //         isPrimary: false,
+              //         onTap: () {
+              //           // Navigate to history (todo)
+              //         },
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         );
@@ -254,52 +254,52 @@ class QuickSummarySection extends StatelessWidget {
 }
 
 /// Quick action button widget
-class _QuickActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isPrimary;
-  final VoidCallback? onTap;
+// class _QuickActionButton extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final bool isPrimary;
+//   final VoidCallback? onTap;
 
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    this.isPrimary = false,
-    this.onTap,
-  });
+//   const _QuickActionButton({
+//     required this.icon,
+//     required this.label,
+//     this.isPrimary = false,
+//     this.onTap,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isPrimary ? Colors.blue.shade50 : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isPrimary ? Colors.blue.shade100 : Colors.grey.shade200,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isPrimary ? AppColors.primary : Colors.grey.shade600,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isPrimary ? AppColors.primary : Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+//         decoration: BoxDecoration(
+//           color: isPrimary ? Colors.blue.shade50 : Colors.grey.shade50,
+//           borderRadius: BorderRadius.circular(12),
+//           border: Border.all(
+//             color: isPrimary ? Colors.blue.shade100 : Colors.grey.shade200,
+//           ),
+//         ),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Icon(
+//               icon,
+//               size: 20,
+//               color: isPrimary ? AppColors.primary : Colors.grey.shade600,
+//             ),
+//             const SizedBox(width: 8),
+//             Text(
+//               label,
+//               style: TextStyle(
+//                 fontSize: 14,
+//                 fontWeight: FontWeight.w600,
+//                 color: isPrimary ? AppColors.primary : Colors.grey.shade600,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

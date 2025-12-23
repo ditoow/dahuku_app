@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../../core/constants/app_colors.dart';
+import '../../../bloc/dashboard_bloc.dart';
+import '../../../bloc/dashboard_event.dart';
+import '../../../data/repositories/transaction_repository.dart';
+import '../../../data/repositories/wallet_repository.dart';
 import '../../bloc/featurea_bloc.dart';
 import '../../bloc/featurea_event.dart';
 import '../../bloc/featurea_state.dart';
@@ -17,8 +22,23 @@ class FeatureaIndexPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Extract route arguments if any
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final preselectedWalletId = args?['walletId'] as String?;
+    final forceIncomeMode = args?['isIncome'] as bool?;
+
     return BlocProvider(
-      create: (_) => FeatureaBloc(),
+      create: (_) =>
+          FeatureaBloc(
+            transactionRepository: GetIt.I<TransactionRepository>(),
+            walletRepository: GetIt.I<WalletRepository>(),
+          )..add(
+            LoadWallets(
+              preselectedWalletId: preselectedWalletId,
+              forceIncomeMode: forceIncomeMode,
+            ),
+          ),
       child: const _FeatureaPageContent(),
     );
   }
@@ -31,12 +51,19 @@ class _FeatureaPageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<FeatureaBloc, FeatureaState>(
       listener: (context, state) {
-        // Show success message when transaction is saved
-        if (state.amount == 0 &&
-            state.selectedExpenseCategory == null &&
-            state.selectedIncomeSource == null) {
-          // This indicates the form was just reset after a successful save
-          // We could show a success message here if needed
+        // Show success and refresh dashboard
+        if (state.isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Transaksi berhasil disimpan!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          // Refresh dashboard
+          try {
+            GetIt.I<DashboardBloc>().add(const DashboardRefreshRequested());
+          } catch (_) {}
+          Navigator.pop(context, true);
         }
 
         // Show error if any
@@ -115,7 +142,8 @@ class _FeatureaPageContent extends StatelessWidget {
                             // Wallet selector
                             WalletSelector(
                               isIncome: state.isIncome,
-                              wallet: state.selectedWallet,
+                              selectedWalletId: state.selectedWalletId,
+                              selectedWalletName: state.selectedWalletName,
                             ),
                             const SizedBox(height: 24),
 
@@ -165,7 +193,6 @@ class _FeatureaPageContent extends StatelessWidget {
                   isLoading: state.isLoading,
                   onPressed: () {
                     context.read<FeatureaBloc>().add(SaveTransaction());
-                    Navigator.pop(context);
                   },
                 ),
               ),
@@ -189,13 +216,13 @@ class _FeatureaPageContent extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: isIncome
                 ? [
-                    AppColors.success.withOpacity(0.3),
-                    AppColors.success.withOpacity(0.1),
+                    AppColors.success.withAlpha(77),
+                    AppColors.success.withAlpha(26),
                     Colors.transparent,
                   ]
                 : [
-                    const Color(0xFFE8D5FF).withOpacity(0.6), // Light purple
-                    const Color(0xFFFFD5D5).withOpacity(0.4), // Light coral
+                    const Color(0xFFE8D5FF).withAlpha(153),
+                    const Color(0xFFFFD5D5).withAlpha(102),
                     Colors.transparent,
                   ],
           ),

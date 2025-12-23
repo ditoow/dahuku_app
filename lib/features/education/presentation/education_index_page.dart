@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import '../../../core/constants/app_colors.dart';
+import '../bloc/comic_bloc.dart';
+import '../bloc/comic_event.dart';
 import 'components/comics_sections.dart';
 
 /// Education main page - displays comics list
@@ -9,7 +13,10 @@ class EducationIndexPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const EducationContent();
+    return BlocProvider(
+      create: (_) => GetIt.I<ComicBloc>()..add(LoadComics()),
+      child: const EducationContent(),
+    );
   }
 }
 

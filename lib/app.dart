@@ -22,9 +22,14 @@ import 'features/dashboard/bloc/dashboard_event.dart';
 import 'features/dashboard/transaction/presentation/pages/featurea_index_page.dart';
 import 'features/dashboard/pindah_uang/presentation/pindah_uang_page.dart';
 import 'features/dashboard/presentation/dompet_page.dart';
+import 'features/dashboard/presentation/tabungan_page.dart';
+import 'features/dashboard/presentation/darurat_page.dart';
 
 // Account
 import 'features/account/bloc/account_bloc.dart';
+
+// Education
+import 'features/education/presentation/comics_detail_page.dart';
 
 /// Main app widget with Navigator routes
 class DahuKuApp extends StatelessWidget {
@@ -63,6 +68,23 @@ class DahuKuApp extends StatelessWidget {
                 GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),
             child: const DompetPage(),
           ),
+          '/tabungan': (context) => BlocProvider(
+            create: (_) =>
+                GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),
+            child: const TabunganPage(),
+          ),
+          '/darurat': (context) => BlocProvider(
+            create: (_) =>
+                GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),
+            child: const DaruratPage(),
+          ),
+          '/comic-detail': (context) {
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            final comicId = args?['comicId'] as String? ?? '';
+            return ComicsDetailPage(comicId: comicId);
+          },
         },
       ),
     );

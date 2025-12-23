@@ -117,8 +117,19 @@ class WalletCardsSection extends StatelessWidget {
                   itemCount: wallets.length,
                   itemBuilder: (context, index) {
                     final wallet = wallets[index];
-                    // Only Dompet Belanja (primary wallet) can navigate to detail page
-                    final canNavigate = wallet.type == WalletType.belanja;
+                    // All wallets can navigate to their detail pages
+                    String route;
+                    switch (wallet.type) {
+                      case WalletType.belanja:
+                        route = '/dompet';
+                        break;
+                      case WalletType.tabungan:
+                        route = '/tabungan';
+                        break;
+                      case WalletType.darurat:
+                        route = '/darurat';
+                        break;
+                    }
 
                     return Padding(
                       padding: EdgeInsets.only(
@@ -127,12 +138,9 @@ class WalletCardsSection extends StatelessWidget {
                       child: _WalletCard(
                         key: ValueKey('wallet_${wallet.type.name}_$index'),
                         wallet: wallet,
-                        onTap: canNavigate
-                            ? () {
-                                // Navigate to Dompet Belanja detail page
-                                Navigator.pushNamed(context, '/dompet');
-                              }
-                            : null, // Tabungan & Darurat have no navigation
+                        onTap: () {
+                          Navigator.pushNamed(context, route);
+                        },
                       ),
                     );
                   },

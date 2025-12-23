@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../bloc/dashboard_bloc.dart';
+import '../../bloc/dashboard_event.dart';
 import '../bloc/pindah_uang_bloc.dart';
 import '../bloc/pindah_uang_event.dart';
 import '../bloc/pindah_uang_state.dart';
@@ -18,7 +20,7 @@ class PindahUangPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => PindahUangBloc(),
+      create: (_) => GetIt.I<PindahUangBloc>()..add(const LoadWallets()),
       child: const _PindahUangPageContent(),
     );
   }
@@ -38,7 +40,12 @@ class _PindahUangPageContent extends StatelessWidget {
               backgroundColor: AppColors.success,
             ),
           );
-          Navigator.pop(context);
+          // Refresh dashboard via GetIt
+          try {
+            GetIt.I<DashboardBloc>().add(const DashboardRefreshRequested());
+          } catch (_) {}
+          // Pop with result true to signal caller to refresh
+          Navigator.pop(context, true);
         }
 
         if (state.errorMessage != null) {
@@ -51,6 +58,14 @@ class _PindahUangPageContent extends StatelessWidget {
         }
       },
       builder: (context, state) {
+        // Show loading while wallets are being fetched
+        if (state.isLoadingWallets) {
+          return Scaffold(
+            backgroundColor: AppColors.bgPage,
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
         return Scaffold(
           backgroundColor: AppColors.bgPage,
           body: Stack(
@@ -84,7 +99,8 @@ class _PindahUangPageContent extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             SourceWalletCard(
-                              walletName: 'Dompet Belanja',
+                              walletName:
+                                  state.sourceWallet?.nama ?? 'Dompet Belanja',
                               balance: state.sourceWalletBalance,
                             ),
                             const SizedBox(height: 24),
@@ -101,11 +117,12 @@ class _PindahUangPageContent extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             TargetWalletSelector(
-                              selectedWalletType:
-                                  state.selectedTargetWalletType,
-                              onWalletSelected: (type) {
+                              wallets: state.wallets,
+                              selectedWalletType: state.targetWallet?.tipe,
+                              sourceWalletType: state.sourceWallet?.tipe,
+                              onWalletSelected: (wallet) {
                                 context.read<PindahUangBloc>().add(
-                                  SelectTargetWallet(type),
+                                  SelectTargetWallet(wallet.tipe),
                                 );
                               },
                             ),
@@ -161,8 +178,8 @@ class _PindahUangPageContent extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.primary.withOpacity(0.1),
-              AppColors.accentPurple.withOpacity(0.05),
+              AppColors.primary.withAlpha(26),
+              AppColors.accentPurple.withAlpha(13),
               Colors.transparent,
             ],
           ),

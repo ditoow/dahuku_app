@@ -86,8 +86,7 @@ class TransactionModel extends Equatable {
 
   /// Konversi ke JSON untuk Supabase (nama kolom Indonesia)
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final json = <String, dynamic>{
       'id_pengguna': userId,
       'id_dompet': walletId,
       'id_kategori': categoryId,
@@ -99,6 +98,13 @@ class TransactionModel extends Equatable {
       'id_transaksi_berulang': recurringId,
       'tanggal_transaksi': transactionDate.toIso8601String().split('T').first,
     };
+
+    // Only include id if it's not empty (for updates)
+    if (id.isNotEmpty) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 
   /// Copy dengan perubahan
