@@ -15,6 +15,8 @@ import 'features/boardingfeature/auth/bloc/auth_bloc.dart';
 
 // Dashboard
 import 'main_shell_page.dart';
+import 'features/dashboard/bloc/dashboard_bloc.dart';
+import 'features/dashboard/bloc/dashboard_event.dart';
 
 // Transaction
 import 'features/dashboard/transaction/presentation/pages/featurea_index_page.dart';
@@ -51,8 +53,16 @@ class DahuKuApp extends StatelessWidget {
           '/questionnaire': (context) => const QuestionnaireIndexPage(),
           '/dashboard': (context) => const MainShellPage(),
           '/catat-transaksi': (context) => const FeatureaIndexPage(),
-          '/pindah-uang': (context) => const PindahUangPage(),
-          '/dompet': (context) => const DompetPage(),
+          '/pindah-uang': (context) => BlocProvider(
+            create: (_) =>
+                GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),
+            child: const PindahUangPage(),
+          ),
+          '/dompet': (context) => BlocProvider(
+            create: (_) =>
+                GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),
+            child: const DompetPage(),
+          ),
         },
       ),
     );

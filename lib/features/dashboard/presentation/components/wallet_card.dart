@@ -116,16 +116,23 @@ class WalletCardsSection extends StatelessWidget {
                   ),
                   itemCount: wallets.length,
                   itemBuilder: (context, index) {
+                    final wallet = wallets[index];
+                    // Only Dompet Belanja (primary wallet) can navigate to detail page
+                    final canNavigate = wallet.type == WalletType.belanja;
+
                     return Padding(
                       padding: EdgeInsets.only(
                         right: index < wallets.length - 1 ? 16 : 0,
                       ),
                       child: _WalletCard(
-                        wallet: wallets[index],
-                        onTap: () {
-                          // Navigate to wallet detail
-                          Navigator.pushNamed(context, '/dompet');
-                        },
+                        key: ValueKey('wallet_${wallet.type.name}_$index'),
+                        wallet: wallet,
+                        onTap: canNavigate
+                            ? () {
+                                // Navigate to Dompet Belanja detail page
+                                Navigator.pushNamed(context, '/dompet');
+                              }
+                            : null, // Tabungan & Darurat have no navigation
                       ),
                     );
                   },
@@ -143,7 +150,7 @@ class _WalletCard extends StatelessWidget {
   final WalletData wallet;
   final VoidCallback? onTap;
 
-  const _WalletCard({required this.wallet, this.onTap});
+  const _WalletCard({super.key, required this.wallet, this.onTap});
 
   String _formatCurrency(double amount) {
     final formatted = amount
