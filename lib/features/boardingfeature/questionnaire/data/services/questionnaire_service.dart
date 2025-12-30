@@ -60,12 +60,17 @@ class QuestionnaireService {
       },
     ];
 
-    // Gunakan upsert agar tidak duplikat jika dijalankan ulang
-    // Namun idealnya dompet punya ID unik. Kita asumsikan insert baru.
-    // Jika ingin idempotent, kita perlu logic cek dulu.
-    // Untuk onboarding, kita insert saja.
-
-    await SupabaseService.client.from('dompet').insert(wallets);
+    // Gunakan upsert agar saldo ter-update jika dompet sudah ada
+    // onConflict berdasarkan id_pengguna + tipe untuk mencegah duplikat
+    try {
+      await SupabaseService.client
+          .from('dompet')
+          .upsert(wallets, onConflict: 'id_pengguna,tipe');
+      print('QUESTIONNAIRE_DEBUG: Wallets created/updated successfully');
+    } catch (e) {
+      print('QUESTIONNAIRE_DEBUG: Failed to create wallets: $e');
+      rethrow;
+    }
   }
 
   /// Get respon kuesioner user saat ini

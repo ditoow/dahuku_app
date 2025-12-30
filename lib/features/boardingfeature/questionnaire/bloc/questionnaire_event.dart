@@ -24,6 +24,21 @@ class QuestionnaireNextPressed extends QuestionnaireEvent {}
 
 class QuestionnairePreviousPressed extends QuestionnaireEvent {}
 
+class QuestionnaireWalletBalancesUpdated extends QuestionnaireEvent {
+  final double belanja;
+  final double tabungan;
+  final double darurat;
+
+  const QuestionnaireWalletBalancesUpdated({
+    required this.belanja,
+    required this.tabungan,
+    required this.darurat,
+  });
+
+  @override
+  List<Object> get props => [belanja, tabungan, darurat];
+}
+
 class QuestionnaireSubmitted extends QuestionnaireEvent {
   final double initialBelanja;
   final double initialTabungan;
@@ -33,9 +48,9 @@ class QuestionnaireSubmitted extends QuestionnaireEvent {
   final String? debtType;
 
   const QuestionnaireSubmitted({
-    required this.initialBelanja,
-    required this.initialTabungan,
-    required this.initialDarurat,
+    this.initialBelanja = 0,
+    this.initialTabungan = 0,
+    this.initialDarurat = 0,
     this.hasDebt = false,
     this.debtAmount,
     this.debtType,

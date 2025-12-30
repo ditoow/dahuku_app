@@ -37,8 +37,13 @@ class _DashboardContentState extends State<DashboardContent> {
   @override
   void initState() {
     super.initState();
-    // Load account data for the header name
-    context.read<AccountBloc>().add(LoadAccount());
+    // Use post frame callback to ensure BLoC is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load account data for the header name
+      context.read<AccountBloc>().add(LoadAccount());
+      // Refresh dashboard data to get latest wallet balances
+      context.read<DashboardBloc>().add(const DashboardRefreshRequested());
+    });
   }
 
   @override

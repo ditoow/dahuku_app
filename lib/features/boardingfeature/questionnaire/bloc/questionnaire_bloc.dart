@@ -13,6 +13,7 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     on<QuestionnaireAnswerSelected>(_onAnswerSelected);
     on<QuestionnaireNextPressed>(_onNextPressed);
     on<QuestionnairePreviousPressed>(_onPreviousPressed);
+    on<QuestionnaireWalletBalancesUpdated>(_onWalletBalancesUpdated);
     on<QuestionnaireSubmitted>(_onSubmitted);
   }
 
@@ -52,22 +53,49 @@ class QuestionnaireBloc extends Bloc<QuestionnaireEvent, QuestionnaireState> {
     }
   }
 
+  void _onWalletBalancesUpdated(
+    QuestionnaireWalletBalancesUpdated event,
+    Emitter<QuestionnaireState> emit,
+  ) {
+    print(
+      'QUESTIONNAIRE_DEBUG: Wallet balances updated - belanja: ${event.belanja}, tabungan: ${event.tabungan}, darurat: ${event.darurat}',
+    );
+    emit(
+      state.copyWith(
+        walletBelanja: event.belanja,
+        walletTabungan: event.tabungan,
+        walletDarurat: event.darurat,
+      ),
+    );
+  }
+
   Future<void> _onSubmitted(
     QuestionnaireSubmitted event,
     Emitter<QuestionnaireState> emit,
   ) async {
     emit(state.copyWith(status: QuestionnaireStatus.loading));
+
+    // Use wallet values from state (persisted from step 2)
+    final walletBelanja = state.walletBelanja;
+    final walletTabungan = state.walletTabungan;
+    final walletDarurat = state.walletDarurat;
+
+    print(
+      'QUESTIONNAIRE_DEBUG: Submitting with wallet values - belanja: $walletBelanja, tabungan: $walletTabungan, darurat: $walletDarurat',
+    );
+
     try {
       await repository.saveResponse(
-        initialBelanja: event.initialBelanja,
-        initialTabungan: event.initialTabungan,
-        initialDarurat: event.initialDarurat,
+        initialBelanja: walletBelanja,
+        initialTabungan: walletTabungan,
+        initialDarurat: walletDarurat,
         hasDebt: event.hasDebt,
         debtAmount: event.debtAmount,
         debtType: event.debtType,
       );
       emit(state.copyWith(status: QuestionnaireStatus.completed));
     } catch (e) {
+      print('QUESTIONNAIRE_DEBUG: Submit failed: $e');
       // In a real app we would handle error state
       emit(state.copyWith(status: QuestionnaireStatus.completed));
     }

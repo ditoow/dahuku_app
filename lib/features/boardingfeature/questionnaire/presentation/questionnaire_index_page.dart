@@ -89,9 +89,13 @@ class _QuestionnaireIndexPageState extends State<QuestionnaireIndexPage> {
     return BlocProvider(
       create: (context) => GetIt.I<QuestionnaireBloc>(),
       child: BlocConsumer<QuestionnaireBloc, QuestionnaireState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.status == QuestionnaireStatus.completed) {
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            // Small delay to ensure database transaction is committed
+            await Future.delayed(const Duration(milliseconds: 300));
+            if (context.mounted) {
+              Navigator.pushReplacementNamed(context, '/dashboard');
+            }
           }
         },
         builder: (context, state) {

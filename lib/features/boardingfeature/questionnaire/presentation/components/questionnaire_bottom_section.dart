@@ -100,16 +100,26 @@ class QuestionnaireBottomSection extends StatelessWidget {
     QuestionnaireState state,
     bool isLastQuestion,
   ) {
-    if (isLastQuestion) {
-      // Submit with wallet and debt data
+    // If on wallet input step (step 2, index 1), save values to BLoC state first
+    if (state.currentQuestionIndex == 1 && walletInputsKey != null) {
       final walletState = walletInputsKey?.currentState;
+      if (walletState != null) {
+        context.read<QuestionnaireBloc>().add(
+          QuestionnaireWalletBalancesUpdated(
+            belanja: walletState.belanjaValue,
+            tabungan: walletState.tabunganValue,
+            darurat: walletState.daruratValue,
+          ),
+        );
+      }
+    }
+
+    if (isLastQuestion) {
+      // Submit - wallet values are already in BLoC state
       final debtState = debtInputsKey?.currentState;
 
       context.read<QuestionnaireBloc>().add(
         QuestionnaireSubmitted(
-          initialBelanja: walletState?.belanjaValue ?? 0,
-          initialTabungan: walletState?.tabunganValue ?? 0,
-          initialDarurat: walletState?.daruratValue ?? 0,
           hasDebt: debtState?.hasDebt ?? false,
           debtAmount: debtState?.debtAmount,
           debtType: debtState?.debtType,

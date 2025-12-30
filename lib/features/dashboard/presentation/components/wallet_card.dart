@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../bloc/dashboard_bloc.dart';
+import '../../bloc/dashboard_event.dart';
 import '../../bloc/dashboard_state.dart';
 
 /// Wallet type enum
@@ -139,7 +140,12 @@ class WalletCardsSection extends StatelessWidget {
                         key: ValueKey('wallet_${wallet.type.name}_$index'),
                         wallet: wallet,
                         onTap: () {
-                          Navigator.pushNamed(context, route);
+                          Navigator.pushNamed(context, route).then((_) {
+                            // Refresh dashboard when returning from wallet detail
+                            context.read<DashboardBloc>().add(
+                              const DashboardRefreshRequested(),
+                            );
+                          });
                         },
                       ),
                     );
