@@ -1,18 +1,34 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'savings_debt_model.g.dart';
 
 /// Model untuk Target Tabungan (Savings Goal)
+@HiveType(typeId: 6)
 class SavingsGoalModel extends Equatable {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String userId;
+  @HiveField(2)
   final String nama;
+  @HiveField(3)
   final String? deskripsi;
+  @HiveField(4)
   final double jumlahTarget;
+  @HiveField(5)
   final double terkumpul;
+  @HiveField(6)
   final String icon;
+  @HiveField(7)
   final String warna;
+  @HiveField(8)
   final DateTime? tanggalTarget;
+  @HiveField(9)
   final bool selesai;
+  @HiveField(10)
   final DateTime? dibuatPada;
+  @HiveField(11)
   final DateTime? diperbaruiPada;
 
   const SavingsGoalModel({
@@ -99,17 +115,29 @@ class SavingsGoalModel extends Equatable {
 }
 
 /// Model untuk Hutang (Debt)
+@HiveType(typeId: 7)
 class DebtModel extends Equatable {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String userId;
+  @HiveField(2)
   final String nama;
+  @HiveField(3)
   final String jenis; // keluarga, rentenir, koperasi, bank, paylater
+  @HiveField(4)
   final double jumlahAwal;
+  @HiveField(5)
   final double sisaHutang;
+  @HiveField(6)
   final double bungaPersen;
+  @HiveField(7)
   final DateTime? tanggalJatuhTempo;
+  @HiveField(8)
   final bool lunas;
+  @HiveField(9)
   final DateTime? dibuatPada;
+  @HiveField(10)
   final DateTime? diperbaruiPada;
 
   const DebtModel({

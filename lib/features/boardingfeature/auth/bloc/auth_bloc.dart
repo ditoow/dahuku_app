@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/models/auth_user_model.dart';
+import '../../../../../core/local_storage/hive_setup.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -76,6 +77,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
 
     try {
+      // Clear all local cache BEFORE signing out to prevent data mixing
+      await HiveSetup.clearAllUserData();
+
       await repository.signOut();
 
       emit(const AuthState(status: AuthStatus.unauthenticated));

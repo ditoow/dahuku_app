@@ -1,10 +1,18 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'dashboard_summary.g.dart';
 
 /// Model ringkasan dashboard dari fungsi Supabase
+@HiveType(typeId: 5)
 class DashboardSummary extends Equatable {
+  @HiveField(0)
   final double totalBalance;
+  @HiveField(1)
   final double weeklyExpense;
+  @HiveField(2)
   final double monthlyBudget;
+  @HiveField(3)
   final double monthlySpent;
 
   const DashboardSummary({

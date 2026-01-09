@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/account_bloc.dart';
 import '../../bloc/account_event.dart';
 import '../../bloc/account_state.dart';
+import '../../bloc/offline_mode_cubit.dart';
 
 import '../components/account_menu_card.dart';
 import '../widgets/setting_toggle_tile.dart';
@@ -106,15 +107,23 @@ class SettingsPage extends StatelessWidget {
                   delegate: SliverChildListDelegate([
                     const _SectionTitle('UMUM'),
 
-                    SettingToggleTile(
-                      title: 'Mode Offline / Sync',
-                      subtitle: 'Sinkronisasi data otomatis',
-                      icon: Icons.cloud_sync,
-                      iconColor: const Color(0xFF304AFF),
-                      iconBg: Colors.blue.shade50,
-                      value: settings.offlineMode,
-                      onChanged: (val) {
-                        context.read<AccountBloc>().add(ToggleOfflineMode(val));
+                    BlocBuilder<OfflineModeCubit, bool>(
+                      builder: (context, isOffline) {
+                        return SettingToggleTile(
+                          title: 'Mode Offline / Sync',
+                          subtitle: isOffline
+                              ? 'Mode Offline Aktif'
+                              : 'Sinkronisasi data otomatis',
+                          icon: isOffline ? Icons.cloud_off : Icons.cloud_sync,
+                          iconColor: const Color(0xFF304AFF),
+                          iconBg: Colors.blue.shade50,
+                          value: isOffline,
+                          onChanged: (val) {
+                            context.read<OfflineModeCubit>().toggleOfflineMode(
+                              val,
+                            );
+                          },
+                        );
                       },
                     ),
 

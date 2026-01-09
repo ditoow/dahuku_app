@@ -1,7 +1,20 @@
 import 'package:get_it/get_it.dart';
 
 // Core services
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../services/offline_mode_service.dart';
+import '../services/sync_service.dart';
 import '../data/services/connectivity_service.dart';
+
+// Models
+import '../../features/dashboard/data/models/transaction_model.dart';
+import '../../features/dashboard/data/models/wallet_model.dart';
+import '../../features/dashboard/data/models/category_model.dart';
+import '../../features/dashboard/data/models/dashboard_summary.dart';
+import '../../features/analytics/data/models/savings_debt_model.dart';
+import '../../features/account/data/models/user_model.dart';
+import '../../features/account/data/models/settings_model.dart';
 
 // Feature: Auth
 import '../../features/boardingfeature/auth/data/repositories/auth_repository.dart';
@@ -14,6 +27,7 @@ import '../../features/account/data/services/account_service.dart';
 import '../../features/account/data/services/backup_service.dart';
 import '../../features/account/data/services/local_storage_service.dart';
 import '../../features/account/bloc/account_bloc.dart';
+import '../../features/account/bloc/offline_mode_cubit.dart';
 
 // Feature: Dashboard
 import '../../features/dashboard/data/repositories/wallet_repository.dart';
@@ -52,6 +66,19 @@ Future<void> initializeDependencies() async {
   // ==================
   // CORE SERVICES
   // ==================
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+  sl.registerLazySingleton(() => OfflineModeService(sl()));
+
+  sl.registerLazySingleton(
+    () => SyncService(
+      transactionRepository: sl(),
+      walletRepository: sl(),
+      savingsDebtRepository: sl(),
+      accountRepository: sl(),
+    ),
+  );
+
   sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
 
   // ==================
@@ -74,20 +101,68 @@ Future<void> initializeDependencies() async {
       accountService: sl(),
       backupService: sl(),
       localStorageService: sl(),
+      userBox: sl(),
+      settingsBox: sl(),
+      offlineModeService: sl(),
     ),
+    instanceName: null,
   );
   sl.registerFactory<AccountBloc>(() => AccountBloc(sl()));
+  sl.registerFactory<OfflineModeCubit>(
+    () => OfflineModeCubit(sl(), sl(), sl(), sl()),
+  );
 
   // ==================
   // FEATURE: DASHBOARD
   // ==================
+  // Hive Boxes
+  sl.registerLazySingleton<Box<TransactionModel>>(
+    () => Hive.box<TransactionModel>('transactions_box'),
+  );
+  sl.registerLazySingleton<Box<TransactionModel>>(
+    () => Hive.box<TransactionModel>('pending_sync_box'),
+    instanceName: 'pending_box',
+  );
+  sl.registerLazySingleton<Box<WalletModel>>(
+    () => Hive.box<WalletModel>('wallets_box'),
+  );
+  sl.registerLazySingleton<Box<CategoryModel>>(
+    () => Hive.box<CategoryModel>('categories_box'),
+  );
+  sl.registerLazySingleton<Box<DashboardSummary>>(
+    () => Hive.box<DashboardSummary>('summary_box'),
+  );
+  sl.registerLazySingleton<Box<SavingsGoalModel>>(
+    () => Hive.box<SavingsGoalModel>('savings_box'),
+  );
+  sl.registerLazySingleton<Box<DebtModel>>(
+    () => Hive.box<DebtModel>('debts_box'),
+  );
+  sl.registerLazySingleton<Box<UserModel>>(
+    () => Hive.box<UserModel>('user_box'),
+  );
+  sl.registerLazySingleton<Box<SettingsModel>>(
+    () => Hive.box<SettingsModel>('settings_box'),
+  );
+
   sl.registerLazySingleton<WalletService>(() => WalletService());
   sl.registerLazySingleton<TransactionService>(() => TransactionService());
   sl.registerLazySingleton<WalletRepository>(
-    () => WalletRepository(walletService: sl()),
+    () => WalletRepository(
+      walletService: sl(),
+      box: sl(),
+      offlineModeService: sl(),
+    ),
   );
   sl.registerLazySingleton<TransactionRepository>(
-    () => TransactionRepository(transactionService: sl()),
+    () => TransactionRepository(
+      transactionService: sl(),
+      box: sl(),
+      pendingBox: sl(instanceName: 'pending_box'),
+      summaryBox: sl(),
+      walletRepository: sl(),
+      offlineModeService: sl(),
+    ),
   );
   sl.registerFactory<DashboardBloc>(
     () => DashboardBloc(
@@ -125,7 +200,12 @@ Future<void> initializeDependencies() async {
   );
   sl.registerLazySingleton<SavingsDebtService>(() => SavingsDebtService());
   sl.registerLazySingleton<SavingsDebtRepository>(
-    () => SavingsDebtRepository(sl()),
+    () => SavingsDebtRepository(
+      service: sl(),
+      savingsBox: sl(),
+      debtBox: sl(),
+      offlineModeService: sl(),
+    ),
   );
   sl.registerFactory<SavingsDebtBloc>(() => SavingsDebtBloc(sl()));
 

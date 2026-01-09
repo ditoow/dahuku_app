@@ -1,22 +1,47 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'transaction_model.g.dart';
 
 /// Tipe transaksi
-enum TransactionType { income, expense, transfer }
+@HiveType(typeId: 3)
+enum TransactionType {
+  @HiveField(0)
+  income,
+  @HiveField(1)
+  expense,
+  @HiveField(2)
+  transfer,
+}
 
 /// Model transaksi untuk Supabase
+@HiveType(typeId: 0)
 class TransactionModel extends Equatable {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String userId;
+  @HiveField(2)
   final String walletId;
+  @HiveField(3)
   final String? categoryId;
+  @HiveField(4)
   final String title;
+  @HiveField(5)
   final String? description;
+  @HiveField(6)
   final double amount;
+  @HiveField(7)
   final TransactionType type;
+  @HiveField(8)
   final String? targetWalletId;
+  @HiveField(9)
   final String? recurringId;
+  @HiveField(10)
   final DateTime transactionDate;
+  @HiveField(11)
   final DateTime? createdAt;
+  @HiveField(12)
   final DateTime? updatedAt;
 
   const TransactionModel({

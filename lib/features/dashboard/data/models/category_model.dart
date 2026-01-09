@@ -1,15 +1,27 @@
 import 'package:equatable/equatable.dart';
 import 'transaction_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'category_model.g.dart';
 
 /// Category model for Supabase
+@HiveType(typeId: 2)
 class CategoryModel extends Equatable {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String? userId;
+  @HiveField(2)
   final String name;
+  @HiveField(3)
   final String iconName;
+  @HiveField(4)
   final String colorHex;
+  @HiveField(5)
   final TransactionType type;
+  @HiveField(6)
   final bool isDefault;
+  @HiveField(7)
   final DateTime createdAt;
 
   const CategoryModel({

@@ -199,7 +199,11 @@ class _ComicsDetailContent extends StatelessWidget {
                                     )
                                   : state.episodes.first;
 
-                              _openReader(context, startEpisode);
+                              _openReader(
+                                context,
+                                startEpisode,
+                                state.episodes,
+                              );
                             },
                             icon: Icon(
                               state.progress != null
@@ -262,6 +266,7 @@ class _ComicsDetailContent extends StatelessWidget {
                             episode,
                             themeColor,
                             isRead,
+                            state.episodes,
                           );
                         }),
 
@@ -307,6 +312,7 @@ class _ComicsDetailContent extends StatelessWidget {
     EpisodeModel episode,
     Color themeColor,
     bool isRead,
+    List<EpisodeModel> allEpisodes,
   ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -314,7 +320,7 @@ class _ComicsDetailContent extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
-          onTap: () => _openReader(context, episode),
+          onTap: () => _openReader(context, episode, allEpisodes),
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -359,7 +365,7 @@ class _ComicsDetailContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${episode.gambarUrls.length} halaman',
+                        '${episode.gambarUrls.length} episode',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: AppColors.textSub,
@@ -384,7 +390,11 @@ class _ComicsDetailContent extends StatelessWidget {
     );
   }
 
-  void _openReader(BuildContext context, EpisodeModel episode) {
+  void _openReader(
+    BuildContext context,
+    EpisodeModel episode,
+    List<EpisodeModel> allEpisodes,
+  ) {
     context.read<ComicBloc>().add(StartEpisode(episode.id));
 
     Navigator.push(
@@ -392,18 +402,46 @@ class _ComicsDetailContent extends StatelessWidget {
       MaterialPageRoute(
         builder: (ctx) => BlocProvider.value(
           value: context.read<ComicBloc>(),
-          child: _ComicReaderPage(episode: episode),
+          child: _ComicReaderPage(episode: episode, allEpisodes: allEpisodes),
         ),
       ),
     );
   }
 }
 
-/// Simple comic reader page
-class _ComicReaderPage extends StatelessWidget {
+/// Simple comic reader page with navigation buttons
+class _ComicReaderPage extends StatefulWidget {
   final EpisodeModel episode;
+  final List<EpisodeModel> allEpisodes;
 
-  const _ComicReaderPage({required this.episode});
+  const _ComicReaderPage({required this.episode, required this.allEpisodes});
+
+  @override
+  State<_ComicReaderPage> createState() => _ComicReaderPageState();
+}
+
+class _ComicReaderPageState extends State<_ComicReaderPage> {
+  late EpisodeModel _currentEpisode;
+  late int _currentEpisodeIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentEpisode = widget.episode;
+    _currentEpisodeIndex = widget.allEpisodes.indexWhere(
+      (e) => e.id == widget.episode.id,
+    );
+  }
+
+  void _goToEpisode(int index) {
+    if (index >= 0 && index < widget.allEpisodes.length) {
+      setState(() {
+        _currentEpisodeIndex = index;
+        _currentEpisode = widget.allEpisodes[index];
+      });
+      context.read<ComicBloc>().add(StartEpisode(_currentEpisode.id));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -415,7 +453,7 @@ class _ComicReaderPage extends StatelessWidget {
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
             title: Text(
-              'Episode ${episode.nomorEpisode}: ${episode.judul}',
+              'Episode ${_currentEpisode.nomorEpisode}: ${_currentEpisode.judul}',
               style: GoogleFonts.poppins(fontSize: 16),
             ),
             leading: IconButton(
@@ -426,70 +464,92 @@ class _ComicReaderPage extends StatelessWidget {
               },
             ),
           ),
-          body: episode.gambarUrls.isEmpty
+          body: _currentEpisode.gambarUrls.isEmpty
               ? Center(
                   child: Text(
                     'Tidak ada gambar',
                     style: GoogleFonts.poppins(color: Colors.white),
                   ),
                 )
-              : PageView.builder(
-                  itemCount: episode.gambarUrls.length,
-                  onPageChanged: (page) {
-                    context.read<ComicBloc>().add(UpdatePage(page));
-                  },
-                  itemBuilder: (ctx, index) {
-                    return InteractiveViewer(
-                      child: Center(
-                        child: Image.network(
-                          episode.gambarUrls[index],
-                          fit: BoxFit.contain,
-                          loadingBuilder: (ctx, child, progress) {
-                            if (progress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: progress.expectedTotalBytes != null
-                                    ? progress.cumulativeBytesLoaded /
-                                          progress.expectedTotalBytes!
-                                    : null,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
-                          errorBuilder: (_, __, ___) => Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.broken_image,
-                                color: Colors.white54,
-                                size: 64,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Gagal memuat gambar',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white54,
-                                ),
-                              ),
-                            ],
+              : SingleChildScrollView(
+                  child: Image.network(
+                    _currentEpisode.gambarUrls.first,
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.fitWidth,
+                    loadingBuilder: (ctx, child, progress) {
+                      if (progress == null) return child;
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: progress.expectedTotalBytes != null
+                                ? progress.cumulativeBytesLoaded /
+                                      progress.expectedTotalBytes!
+                                : null,
+                            color: Colors.white,
                           ),
                         ),
+                      );
+                    },
+                    errorBuilder: (_, __, ___) => SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.broken_image,
+                            color: Colors.white54,
+                            size: 64,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Gagal memuat gambar',
+                            style: GoogleFonts.poppins(color: Colors.white54),
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
           bottomNavigationBar: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: Colors.black,
             child: SafeArea(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Previous button
+                  IconButton(
+                    onPressed: _currentEpisodeIndex > 0
+                        ? () => _goToEpisode(_currentEpisodeIndex - 1)
+                        : null,
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: _currentEpisodeIndex > 0
+                          ? Colors.white
+                          : Colors.white24,
+                    ),
+                  ),
+                  // Episode indicator
                   Text(
-                    'Halaman ${state.currentPage + 1} / ${episode.gambarUrls.length}',
+                    'Episode ${_currentEpisodeIndex + 1} / ${widget.allEpisodes.length}',
                     style: GoogleFonts.poppins(
                       color: Colors.white70,
                       fontSize: 14,
+                    ),
+                  ),
+                  // Next button
+                  IconButton(
+                    onPressed:
+                        _currentEpisodeIndex < widget.allEpisodes.length - 1
+                        ? () => _goToEpisode(_currentEpisodeIndex + 1)
+                        : null,
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      color:
+                          _currentEpisodeIndex < widget.allEpisodes.length - 1
+                          ? Colors.white
+                          : Colors.white24,
                     ),
                   ),
                 ],

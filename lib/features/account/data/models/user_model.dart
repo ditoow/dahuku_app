@@ -1,13 +1,24 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'user_model.g.dart';
 
 /// Model user untuk fitur account
+@HiveType(typeId: 8)
 class UserModel extends Equatable {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String name;
+  @HiveField(2)
   final String email;
+  @HiveField(3)
   final String? avatarUrl;
+  @HiveField(4)
   final String? phone;
+  @HiveField(5)
   final DateTime? createdAt;
+  @HiveField(6)
   final DateTime? updatedAt;
 
   const UserModel({

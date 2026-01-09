@@ -1,12 +1,22 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'settings_model.g.dart';
 
 /// Model pengaturan user
+@HiveType(typeId: 9)
 class SettingsModel extends Equatable {
+  @HiveField(0)
   final bool offlineMode;
+  @HiveField(1)
   final String fontSize;
+  @HiveField(2)
   final bool highContrast;
+  @HiveField(3)
   final String language;
+  @HiveField(4)
   final bool notificationEnabled;
+  @HiveField(5)
   final bool biometricEnabled;
 
   const SettingsModel({

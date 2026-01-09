@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../account/bloc/account_bloc.dart';
 import '../../../account/bloc/account_event.dart';
+import '../../../account/bloc/offline_mode_cubit.dart';
 import '../../bloc/dashboard_bloc.dart';
 import '../../bloc/dashboard_event.dart';
 import '../../bloc/dashboard_state.dart';
@@ -48,18 +49,35 @@ class _DashboardContentState extends State<DashboardContent> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardBloc, DashboardState>(
-      builder: (context, state) {
-        return Stack(
-          children: [
-            // Gradient backgrounds
-            const DashboardBackground(),
-
-            // Content based on state
-            _buildContent(context, state),
-          ],
-        );
+    // Listen for offline mode changes to refresh when going online
+    return BlocListener<OfflineModeCubit, bool>(
+      listener: (context, isOffline) {
+        if (!isOffline) {
+          // Just went online - refresh dashboard after a delay
+          // to allow sync to complete
+          Future.delayed(const Duration(seconds: 3), () {
+            if (mounted) {
+              print('📱 DASHBOARD: Refreshing after going online');
+              context.read<DashboardBloc>().add(
+                const DashboardRefreshRequested(),
+              );
+            }
+          });
+        }
       },
+      child: BlocBuilder<DashboardBloc, DashboardState>(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              // Gradient backgrounds
+              const DashboardBackground(),
+
+              // Content based on state
+              _buildContent(context, state),
+            ],
+          );
+        },
+      ),
     );
   }
 

@@ -27,9 +27,14 @@ import 'features/dashboard/presentation/darurat_page.dart';
 
 // Account
 import 'features/account/bloc/account_bloc.dart';
+import 'features/account/bloc/offline_mode_cubit.dart';
 
 // Education
 import 'features/education/presentation/comics_detail_page.dart';
+
+// Global Key for Snackbars
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 /// Main app widget with Navigator routes
 class DahuKuApp extends StatelessWidget {
@@ -43,8 +48,12 @@ class DahuKuApp extends StatelessWidget {
           create: (_) => GetIt.I<AuthBloc>()..add(AuthCheckRequested()),
         ),
         BlocProvider<AccountBloc>(create: (_) => GetIt.I<AccountBloc>()),
+        BlocProvider<OfflineModeCubit>(
+          create: (_) => GetIt.I<OfflineModeCubit>(),
+        ),
       ],
       child: MaterialApp(
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
         title: 'DahuKu',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,

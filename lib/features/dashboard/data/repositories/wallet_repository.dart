@@ -1,3 +1,5 @@
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../core/services/offline_mode_service.dart';
 import '../../../../core/data/repositories/base_repository.dart';
 import '../models/wallet_model.dart';
 import '../services/wallet_service.dart';
@@ -5,11 +7,47 @@ import '../services/wallet_service.dart';
 /// Repository for wallet operations
 class WalletRepository extends BaseRepository {
   final WalletService walletService;
+  final Box<WalletModel> box;
+  final OfflineModeService offlineModeService;
 
-  WalletRepository({required this.walletService});
+  WalletRepository({
+    required this.walletService,
+    required this.box,
+    required this.offlineModeService,
+  });
+
+  /// Sort wallets: primary first, then by created date
+  List<WalletModel> _sortWallets(List<WalletModel> wallets) {
+    wallets.sort((a, b) {
+      if (a.isPrimary != b.isPrimary) {
+        return a.isPrimary ? -1 : 1; // Primary first
+      }
+      final aDate = a.createdAt ?? DateTime(2000);
+      final bDate = b.createdAt ?? DateTime(2000);
+      return aDate.compareTo(bDate);
+    });
+    return wallets;
+  }
 
   /// Get all wallets
-  Future<List<WalletModel>> getWallets() => walletService.getWallets();
+  Future<List<WalletModel>> getWallets() async {
+    if (offlineModeService.isOfflineMode) {
+      return _sortWallets(box.values.toList());
+    }
+
+    try {
+      final wallets = await walletService.getWallets();
+      for (var wallet in wallets) {
+        if (wallet.id.isNotEmpty) {
+          await box.put(wallet.id, wallet);
+        }
+      }
+      return wallets; // Server already sorted
+    } catch (e) {
+      // Fallback to cache - need sorting here too!
+      return _sortWallets(box.values.toList());
+    }
+  }
 
   /// Get wallet by ID
   Future<WalletModel?> getWalletById(String id) =>

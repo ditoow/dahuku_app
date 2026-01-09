@@ -1,19 +1,41 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+part 'wallet_model.g.dart';
 
 /// Tipe dompet
-enum WalletType { belanja, tabungan, darurat }
+@HiveType(typeId: 4)
+enum WalletType {
+  @HiveField(0)
+  belanja,
+  @HiveField(1)
+  tabungan,
+  @HiveField(2)
+  darurat,
+}
 
 /// Model dompet untuk Supabase
+@HiveType(typeId: 1)
 class WalletModel extends Equatable {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String userId;
+  @HiveField(2)
   final String name;
+  @HiveField(3)
   final WalletType type;
+  @HiveField(4)
   final double balance;
+  @HiveField(5)
   final bool isPrimary;
+  @HiveField(6)
   final String? iconName;
+  @HiveField(7)
   final String? colorHex;
+  @HiveField(8)
   final DateTime? createdAt;
+  @HiveField(9)
   final DateTime? updatedAt;
 
   const WalletModel({
