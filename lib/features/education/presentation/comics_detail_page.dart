@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -10,17 +10,25 @@ import '../bloc/comic_state.dart';
 import '../data/models/comic_model.dart';
 
 /// Comics detail page showing comic info and episodes
-class ComicsDetailPage extends StatelessWidget {
+class ComicsDetailPage extends StatefulWidget {
   final String comicId;
 
   const ComicsDetailPage({super.key, required this.comicId});
 
   @override
+  State<ComicsDetailPage> createState() => _ComicsDetailPageState();
+}
+
+class _ComicsDetailPageState extends State<ComicsDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ComicBloc>().add(LoadComicDetail(widget.comicId));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => GetIt.I<ComicBloc>()..add(LoadComicDetail(comicId)),
-      child: const _ComicsDetailContent(),
-    );
+    return const _ComicsDetailContent();
   }
 }
 

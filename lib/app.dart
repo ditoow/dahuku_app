@@ -31,6 +31,8 @@ import 'features/account/bloc/offline_mode_cubit.dart';
 
 // Education
 import 'features/education/presentation/comics_detail_page.dart';
+import 'features/education/bloc/comic_bloc.dart';
+import 'features/education/bloc/comic_event.dart';
 
 // Global Key for Snackbars
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
@@ -50,6 +52,9 @@ class DahuKuApp extends StatelessWidget {
         BlocProvider<AccountBloc>(create: (_) => GetIt.I<AccountBloc>()),
         BlocProvider<OfflineModeCubit>(
           create: (_) => GetIt.I<OfflineModeCubit>(),
+        ),
+        BlocProvider<ComicBloc>(
+          create: (_) => GetIt.I<ComicBloc>()..add(LoadComics()),
         ),
       ],
       child: MaterialApp(
