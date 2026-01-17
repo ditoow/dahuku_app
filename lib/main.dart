@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
 import 'core/di/injection_container.dart';
@@ -9,10 +10,12 @@ import 'package:get_it/get_it.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   await Supabase.initialize(
-    url: 'https://qhtumpwsagfqtspvorhh.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFodHVtcHdzYWdmcXRzcHZvcmhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMTczMjgsImV4cCI6MjA3NzU5MzMyOH0.EBUL89n3e3LjK7GPANccU9c1u8L3ys_4yIsj_zFNk08',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
   // Initialize Hive
