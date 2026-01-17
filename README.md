@@ -8,7 +8,6 @@ Aplikasi manajemen keuangan pribadi berbasis Flutter dengan fitur **offline-firs
 [![Dart](https://img.shields.io/badge/Dart-3.0+-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
 [![BLoC](https://img.shields.io/badge/BLoC-State_Management-blue?style=for-the-badge)](https://bloclibrary.dev)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 </div>
 
@@ -32,7 +31,6 @@ Aplikasi manajemen keuangan pribadi berbasis Flutter dengan fitur **offline-firs
 - [Contributing](#-contributing)
 - [Troubleshooting](#-troubleshooting)
 - [Changelog](#-changelog)
-- [License](#-license)
 
 ---
 
@@ -83,13 +81,30 @@ Aplikasi manajemen keuangan pribadi berbasis Flutter dengan fitur **offline-firs
 | **Categories** | 13 kategori default + custom kategori        |
 | **Recurring**  | Transaksi berulang (harian/mingguan/bulanan) |
 
+### 💰 Fitur Tabungan
+
+| Fitur                | Deskripsi                           |
+| -------------------- | ----------------------------------- |
+| **Target Tabungan**  | Set target menabung dengan deadline |
+| **Setor Tabungan**   | Catat setiap setoran ke tabungan    |
+| **Progress Tracker** | Pantau progres pencapaian target    |
+
+### 💳 Manajemen Hutang
+
+| Fitur              | Deskripsi                             |
+| ------------------ | ------------------------------------- |
+| **Catat Hutang**   | Record hutang dengan detail           |
+| **Bayar Hutang**   | Catat pembayaran cicilan              |
+| **Hutang Tracker** | Pantau sisa hutang yang harus dibayar |
+
 ### 📚 Education (Komik Finansial)
 
-| Fitur                  | Deskripsi                      |
-| ---------------------- | ------------------------------ |
-| **Interactive Comics** | Belajar keuangan melalui komik |
-| **Financial Tips**     | Tips mengatur keuangan         |
-| **Progress Tracking**  | Lacak komik yang sudah dibaca  |
+| Fitur                  | Deskripsi                           |
+| ---------------------- | ----------------------------------- |
+| **Interactive Comics** | Belajar keuangan melalui komik      |
+| **Episode System**     | Komik terbagi dalam episode-episode |
+| **Progress Tracking**  | Lacak komik yang sudah dibaca       |
+| **Financial Tips**     | Tips mengatur keuangan              |
 
 ### 🔐 Security & Authentication
 
@@ -278,15 +293,23 @@ erDiagram
     PENGGUNA ||--o{ TRANSAKSI : melakukan
     PENGGUNA ||--o{ KATEGORI : membuat
     PENGGUNA ||--o{ ANGGARAN : mengatur
+    PENGGUNA ||--o{ HUTANG : memiliki
+    PENGGUNA ||--o{ TARGET_TABUNGAN : menetapkan
+    PENGGUNA ||--o{ KOMIK : membaca
     PENGGUNA ||--|| PENGATURAN_PENGGUNA : memiliki
-    PENGGUNA ||--|| PIN_PENGGUNA : memiliki
     PENGGUNA ||--|| RESPON_KUESIONER : mengisi
     PENGGUNA ||--o{ TRANSAKSI_BERULANG : membuat
 
     DOMPET ||--o{ TRANSAKSI : sumber
     DOMPET ||--o{ TRANSAKSI : tujuan
+    DOMPET ||--o{ SETOR_TABUNGAN : untuk
     KATEGORI ||--o{ TRANSAKSI : dikategorikan
     KATEGORI ||--o{ ANGGARAN : untuk
+
+    HUTANG ||--o{ BAYAR_HUTANG : dibayar
+    TARGET_TABUNGAN ||--o{ SETOR_TABUNGAN : disetori
+    KOMIK ||--o{ EPISODE_KOMIK : berisi
+    KOMIK ||--o{ PROGRES_KOMIK : dipantau
 
     PENGGUNA {
         uuid id PK
@@ -314,10 +337,8 @@ erDiagram
         uuid id_dompet FK
         uuid id_kategori FK
         varchar judul
-        text deskripsi
         decimal jumlah
         enum tipe
-        uuid id_dompet_tujuan FK
         date tanggal_transaksi
     }
 
@@ -330,9 +351,68 @@ erDiagram
         enum tipe
         boolean adalah_default
     }
+
+    KOMIK {
+        uuid id PK
+        varchar judul
+        text deskripsi
+        text cover_url
+        int urutan
+        boolean aktif
+    }
+
+    EPISODE_KOMIK {
+        uuid id PK
+        uuid id_komik FK
+        varchar judul
+        text gambar_url
+        int urutan
+    }
+
+    HUTANG {
+        uuid id PK
+        uuid id_pengguna FK
+        varchar nama
+        decimal jumlah_total
+        decimal sisa_hutang
+        date tanggal_jatuh_tempo
+    }
+
+    TARGET_TABUNGAN {
+        uuid id PK
+        uuid id_pengguna FK
+        varchar nama
+        decimal target_jumlah
+        decimal terkumpul
+        date deadline
+    }
 ```
 
-### Tabel Database
+### Daftar Tabel Database
+
+Aplikasi ini menggunakan **15 tabel** di Supabase:
+
+| No  | Tabel                 | Deskripsi                                       |
+| --- | --------------------- | ----------------------------------------------- |
+| 1   | `pengguna`            | Data profil user                                |
+| 2   | `dompet`              | Wallet/dompet user (belanja, tabungan, darurat) |
+| 3   | `kategori`            | Kategori transaksi (default + custom)           |
+| 4   | `transaksi`           | Record transaksi pemasukan/pengeluaran/transfer |
+| 5   | `transaksi_berulang`  | Transaksi recurring (harian/mingguan/bulanan)   |
+| 6   | `anggaran`            | Budget bulanan per kategori                     |
+| 7   | `pengaturan_pengguna` | Preferensi user (font, bahasa, notifikasi)      |
+| 8   | `respon_kuesioner`    | Data dari initial questionnaire                 |
+| 9   | `komik`               | Master data komik edukasi                       |
+| 10  | `episode_komik`       | Episode/halaman dalam komik                     |
+| 11  | `progres_komik`       | Tracking progress baca komik per user           |
+| 12  | `hutang`              | Data hutang user                                |
+| 13  | `bayar_hutang`        | Record pembayaran cicilan hutang                |
+| 14  | `target_tabungan`     | Target menabung dengan deadline                 |
+| 15  | `setor_tabungan`      | Record setoran ke tabungan                      |
+
+---
+
+### Detail Tabel
 
 #### 1. `pengguna` - Data User
 
@@ -371,9 +451,9 @@ erDiagram
 | `tipe`           | ENUM        | `pemasukan`, `pengeluaran`, `transfer` |
 | `adalah_default` | BOOLEAN     | Kategori bawaan                        |
 
-**Kategori Default:**
+**Kategori Default Pengeluaran:**
 
-| Pengeluaran   | Icon             | Color   |
+| Kategori      | Icon             | Color   |
 | ------------- | ---------------- | ------- |
 | Makan & Minum | restaurant       | #FF6B6B |
 | Transportasi  | directions_car   | #4ECDC4 |
@@ -384,7 +464,9 @@ erDiagram
 | Pendidikan    | school           | #F7DC6F |
 | Lainnya       | more_horiz       | #BDC3C7 |
 
-| Pemasukan | Icon          | Color   |
+**Kategori Default Pemasukan:**
+
+| Kategori  | Icon          | Color   |
 | --------- | ------------- | ------- |
 | Gaji      | payments      | #2ECC71 |
 | Bonus     | card_giftcard | #27AE60 |
@@ -414,7 +496,7 @@ erDiagram
 | `id`                       | UUID (PK) | Recurring transaction ID                   |
 | `frekuensi`                | ENUM      | `harian`, `mingguan`, `bulanan`, `tahunan` |
 | `hari_dalam_bulan`         | INT       | 1-31 for monthly                           |
-| `hari_dalam_minggu`        | INT       | 0-6 for weekly                             |
+| `hari_dalam_minggu`        | INT       | 0-6 for weekly (0=Minggu)                  |
 | `tanggal_mulai`            | DATE      | Start date                                 |
 | `tanggal_selesai`          | DATE      | End date (nullable)                        |
 | `tanggal_jalan_berikutnya` | DATE      | Next execution date                        |
@@ -453,13 +535,85 @@ erDiagram
 | `jumlah_hutang`       | DECIMAL     | Debt amount                     |
 | `tipe_hutang`         | VARCHAR(50) | Debt type                       |
 
-#### 9. `pin_pengguna` - PIN Authentication
+#### 9. `komik` - Master Komik Edukasi
 
-| Column            | Type          | Description        |
-| ----------------- | ------------- | ------------------ |
-| `id_pengguna`     | UUID (FK, UK) | One PIN per user   |
-| `hash_pin`        | VARCHAR(255)  | Hashed 6-digit PIN |
-| `biometrik_aktif` | BOOLEAN       | Biometric enabled  |
+| Column      | Type      | Description              |
+| ----------- | --------- | ------------------------ |
+| `id`        | UUID (PK) | Komik ID                 |
+| `judul`     | VARCHAR   | Judul komik              |
+| `deskripsi` | TEXT      | Deskripsi/sinopsis komik |
+| `cover_url` | TEXT      | URL gambar cover         |
+| `urutan`    | INT       | Urutan tampilan          |
+| `aktif`     | BOOLEAN   | Apakah komik aktif       |
+
+#### 10. `episode_komik` - Episode dalam Komik
+
+| Column       | Type      | Description                |
+| ------------ | --------- | -------------------------- |
+| `id`         | UUID (PK) | Episode ID                 |
+| `id_komik`   | UUID (FK) | Parent komik               |
+| `judul`      | VARCHAR   | Judul episode              |
+| `gambar_url` | TEXT      | URL gambar halaman         |
+| `urutan`     | INT       | Urutan halaman dalam komik |
+
+#### 11. `progres_komik` - Progress Baca User
+
+| Column             | Type        | Description                   |
+| ------------------ | ----------- | ----------------------------- |
+| `id`               | UUID (PK)   | Progress ID                   |
+| `id_pengguna`      | UUID (FK)   | User                          |
+| `id_komik`         | UUID (FK)   | Komik yang dibaca             |
+| `episode_terakhir` | INT         | Nomor episode terakhir dibaca |
+| `selesai`          | BOOLEAN     | Apakah sudah selesai          |
+| `dibaca_pada`      | TIMESTAMPTZ | Waktu terakhir membaca        |
+
+#### 12. `hutang` - Data Hutang
+
+| Column                | Type          | Description           |
+| --------------------- | ------------- | --------------------- |
+| `id`                  | UUID (PK)     | Hutang ID             |
+| `id_pengguna`         | UUID (FK)     | User pemilik hutang   |
+| `nama`                | VARCHAR       | Nama/deskripsi hutang |
+| `jumlah_total`        | DECIMAL(15,2) | Total hutang awal     |
+| `sisa_hutang`         | DECIMAL(15,2) | Sisa hutang saat ini  |
+| `tanggal_jatuh_tempo` | DATE          | Deadline pelunasan    |
+| `lunas`               | BOOLEAN       | Status lunas          |
+| `dibuat_pada`         | TIMESTAMPTZ   | Waktu dibuat          |
+
+#### 13. `bayar_hutang` - Pembayaran Hutang
+
+| Column          | Type          | Description         |
+| --------------- | ------------- | ------------------- |
+| `id`            | UUID (PK)     | Payment ID          |
+| `id_hutang`     | UUID (FK)     | Hutang yang dibayar |
+| `jumlah`        | DECIMAL(15,2) | Jumlah pembayaran   |
+| `tanggal_bayar` | DATE          | Tanggal pembayaran  |
+| `catatan`       | TEXT          | Catatan pembayaran  |
+
+#### 14. `target_tabungan` - Target Menabung
+
+| Column          | Type          | Description                  |
+| --------------- | ------------- | ---------------------------- |
+| `id`            | UUID (PK)     | Target ID                    |
+| `id_pengguna`   | UUID (FK)     | User pemilik target          |
+| `nama`          | VARCHAR       | Nama target (misal: Liburan) |
+| `target_jumlah` | DECIMAL(15,2) | Jumlah target                |
+| `terkumpul`     | DECIMAL(15,2) | Jumlah yang sudah terkumpul  |
+| `deadline`      | DATE          | Target deadline              |
+| `tercapai`      | BOOLEAN       | Status tercapai              |
+| `dibuat_pada`   | TIMESTAMPTZ   | Waktu dibuat                 |
+
+#### 15. `setor_tabungan` - Setoran ke Tabungan
+
+| Column          | Type          | Description            |
+| --------------- | ------------- | ---------------------- |
+| `id`            | UUID (PK)     | Setoran ID             |
+| `id_target`     | UUID (FK)     | Target tabungan tujuan |
+| `id_dompet`     | UUID (FK)     | Wallet sumber dana     |
+| `jumlah`        | DECIMAL(15,2) | Jumlah setoran         |
+| `tanggal_setor` | DATE          | Tanggal setoran        |
+
+---
 
 ### Database Functions
 
@@ -493,6 +647,7 @@ All tables have RLS enabled with policies:
 
 - Users can only access their own data
 - Default categories (`adalah_default = TRUE`) are readable by all authenticated users
+- Komik data is readable by all authenticated users
 
 ---
 
@@ -514,7 +669,7 @@ Pastikan sudah terinstall:
 #### 1. Clone Repository
 
 ```bash
-git clone https://github.com/username/dahuku_app.git
+git clone https://github.com/ditoow/dahuku_app.git
 cd dahuku_app
 ```
 
@@ -740,6 +895,13 @@ final response = await supabase
     .select('*, kategori(*)')
     .eq('id_pengguna', userId)
     .order('tanggal_transaksi', ascending: false);
+
+// Get komik with episodes
+final response = await supabase
+    .from('komik')
+    .select('*, episode_komik(*)')
+    .eq('aktif', true)
+    .order('urutan');
 ```
 
 #### Write Operations
@@ -753,6 +915,13 @@ await supabase.from('transaksi').insert({
   'jumlah': 50000,
   'tipe': 'pengeluaran',
   'tanggal_transaksi': DateTime.now().toIso8601String(),
+});
+
+// Record hutang payment
+await supabase.from('bayar_hutang').insert({
+  'id_hutang': hutangId,
+  'jumlah': 500000,
+  'tanggal_bayar': DateTime.now().toIso8601String(),
 });
 ```
 
@@ -979,43 +1148,17 @@ flutter pub get
 
 ## 📝 Changelog
 
-### v1.0.0 (2024-12-22)
+### v1.0.0 (2025-01-17)
 
 - 🎉 Initial release
 - ✅ Dashboard dengan multi-wallet
 - ✅ Catat transaksi (pemasukan/pengeluaran/transfer)
 - ✅ Analytics dengan chart
-- ✅ Education comics
+- ✅ Education comics dengan episode system
+- ✅ Fitur hutang dan pembayaran
+- ✅ Fitur target tabungan
 - ✅ Offline-first architecture
 - ✅ PIN & biometric authentication
-
----
-
-## 📜 License
-
-```
-MIT License
-
-Copyright (c) 2024 DahuKu
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
 
 ---
 
