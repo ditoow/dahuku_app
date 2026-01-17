@@ -65,7 +65,6 @@ class WalletCardsSection extends StatelessWidget {
 
         return Column(
           children: [
-            // Section header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
@@ -77,20 +76,6 @@ class WalletCardsSection extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textMain,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to all wallets
-                    },
-                    child: Text(
-                      'SEMUA',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                        letterSpacing: 0.5,
-                      ),
                     ),
                   ),
                 ],

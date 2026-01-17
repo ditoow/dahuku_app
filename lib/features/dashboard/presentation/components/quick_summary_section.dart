@@ -26,10 +26,6 @@ class QuickSummarySection extends StatelessWidget {
     return BlocBuilder<DashboardBloc, DashboardState>(
       builder: (context, state) {
         final weeklyExpense = state.summary.weeklyExpense;
-        final remainingBudget = state.summary.remainingBudget > 0
-            ? state.summary.remainingBudget
-            : 1000000.0; // Fallback logic as seen in index page
-        final budgetProgress = state.summary.budgetProgress;
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -37,7 +33,7 @@ class QuickSummarySection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Ringkasan Cepat',
+                'Pengeluaran',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -46,175 +42,62 @@ class QuickSummarySection extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Two cards grid
-              Row(
-                children: [
-                  // Pengeluaran card (white)
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade100),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(10),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Icon(
-                                  Icons.arrow_downward,
-                                  size: 16,
-                                  color: Colors.red.shade500,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'PENGELUARAN',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade400,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            _formatCurrency(weeklyExpense),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textMain,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Minggu ini',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        ],
-                      ),
+              // Pengeluaran card (white)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(10),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-
-                  // Sisa Belanja card (purple gradient)
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [AppColors.accentPurple, Color(0xFF8B5CF6)],
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.arrow_downward,
+                            size: 16,
+                            color: Colors.red.shade500,
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.accentPurple.withAlpha(77),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
+                        const SizedBox(width: 8),
+                        Text(
+                          'PENGELUARAN MINGGU INI',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade400,
+                            letterSpacing: 0.5,
                           ),
-                        ],
-                      ),
-                      child: Stack(
-                        children: [
-                          // Background icon
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Opacity(
-                              opacity: 0.1,
-                              child: Icon(
-                                Icons.pie_chart,
-                                size: 36,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withAlpha(51),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Icon(
-                                      Icons.account_balance_wallet_outlined,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'SISA BELANJA',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white.withAlpha(204),
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                _formatCurrency(remainingBudget),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              // Progress bar
-                              Container(
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withAlpha(51),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                                child: FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: budgetProgress,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _formatCurrency(weeklyExpense),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMain,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 

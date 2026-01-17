@@ -29,6 +29,9 @@ import 'features/dashboard/presentation/darurat_page.dart';
 import 'features/account/bloc/account_bloc.dart';
 import 'features/account/bloc/offline_mode_cubit.dart';
 
+// All Transactions
+import 'features/dashboard/presentation/pages/all_transactions_page.dart';
+
 // Education
 import 'features/education/presentation/comics_detail_page.dart';
 import 'features/education/bloc/comic_bloc.dart';
@@ -70,8 +73,15 @@ class DahuKuApp extends StatelessWidget {
           '/register': (context) => const RegisterIndexPage(),
           '/pin': (context) => const PinIndexPage(),
           '/questionnaire': (context) => const QuestionnaireIndexPage(),
-          '/dashboard': (context) => const MainShellPage(),
+          '/dashboard': (context) {
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            final initialIndex = args?['initialIndex'] as int? ?? 0;
+            return MainShellPage(initialIndex: initialIndex);
+          },
           '/catat-transaksi': (context) => const FeatureaIndexPage(),
+          '/all-transactions': (context) => const AllTransactionsPage(),
           '/pindah-uang': (context) => BlocProvider(
             create: (_) =>
                 GetIt.I<DashboardBloc>()..add(const DashboardLoadRequested()),

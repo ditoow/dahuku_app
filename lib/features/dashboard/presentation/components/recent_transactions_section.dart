@@ -118,7 +118,8 @@ class RecentTransactionsSection extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Navigate to all transactions
+                      // Navigate to All Transactions page
+                      Navigator.pushNamed(context, '/all-transactions');
                     },
                     child: Text(
                       'Lihat Semua',

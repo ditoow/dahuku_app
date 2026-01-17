@@ -112,7 +112,6 @@ class _AnalyticsPageContent extends StatelessWidget {
                                     // Total Pengeluaran Section
                                     ExpenseSummarySection(
                                       totalExpense: state.totalExpenseThisMonth,
-                                      remainingBudget: state.remainingBudget,
                                       expensesByCategory:
                                           state.expensesByCategory,
                                       insight: state.insight,

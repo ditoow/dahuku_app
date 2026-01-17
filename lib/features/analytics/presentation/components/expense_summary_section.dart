@@ -5,30 +5,15 @@ import '../../bloc/analytics_state.dart';
 /// Expense summary card with bar chart and insights
 class ExpenseSummarySection extends StatelessWidget {
   final double totalExpense;
-  final double remainingBudget;
   final List<CategoryExpense> expensesByCategory;
   final String? insight;
 
   const ExpenseSummarySection({
     super.key,
     required this.totalExpense,
-    required this.remainingBudget,
     required this.expensesByCategory,
     this.insight,
   });
-
-  String _formatCurrency(double amount) {
-    final absAmount = amount.abs();
-    if (absAmount >= 1000000) {
-      return '${(absAmount / 1000000).toStringAsFixed(1)}jt';
-    }
-    return absAmount
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (m) => '${m[1]}.',
-        );
-  }
 
   String _formatFullCurrency(double amount) {
     return amount
@@ -82,28 +67,6 @@ class ExpenseSummarySection extends StatelessWidget {
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Sisa Anggaran',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFFBBDEFB),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '+Rp ${_formatCurrency(remainingBudget)}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFFA788FD),
                     ),
                   ),
                 ],
